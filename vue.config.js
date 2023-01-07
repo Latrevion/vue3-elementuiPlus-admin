@@ -3,12 +3,15 @@
 //   lintOnSave: false,
 //   transpileDependencies: true,
 // });
-
+const AutoImport = require('unplugin-auto-import/webpack')
+const Components = require('unplugin-vue-components/webpack')
+const { ElementPlusResolver } = require('unplugin-vue-components/resolvers')
 
 
 
 const path = require('path');
 module.exports = {
+  lintOnSave: false,
   // 基本路径
   publicPath: process.env.NODE_ENV === 'production' ? '' : './',
   // 输出文件目录
@@ -30,11 +33,11 @@ module.exports = {
     sourceMap: false,
     // css预设器配置项
     loaderOptions: {
-      css: {
-        modules:{
-          auto:()=>true,
-        }
-      },
+      // css: {
+      //   modules:{
+      //     auto:()=>true,
+      //   }
+      // },
       scss:{
         additionalData: `@import "./styles/main.scss";`,
       }
@@ -52,5 +55,17 @@ module.exports = {
   /**
    * 第三方插件配置
    */
-  pluginOptions: {}
+  pluginOptions: {
+
+  },
+  configureWebpack: {
+    plugins: [
+      AutoImport({
+        resolvers:[ElementPlusResolver()]
+      }),
+      Components({
+        resolvers:[ElementPlusResolver()]
+      })
+    ]
+  }
 }
