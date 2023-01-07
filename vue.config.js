@@ -29,8 +29,16 @@ module.exports = {
     // 开启 CSS source maps?
     sourceMap: false,
     // css预设器配置项
-    loaderOptions: {},
-    requireModuleExtension: true
+    loaderOptions: {
+      css: {
+        modules:{
+          auto:()=>true,
+        }
+      },
+      scss:{
+        additionalData: `@import "./styles/main.scss";`,
+      }
+    },
   },
   // use thread-loader for babel & TS in production build
   // enabled by default if the machine has more than 1 cores
