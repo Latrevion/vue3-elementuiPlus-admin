@@ -39,7 +39,7 @@ module.exports = {
       //   }
       // },
       scss:{
-        additionalData: `@import "./styles/main.scss";`,
+        additionalData: `@import "./src/styles/main.scss";`,
       }
     },
   },
