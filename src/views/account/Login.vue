@@ -2,7 +2,7 @@
   <div id="login">
     <div class="form-wrap">
       <ul class="menu-tab">
-        <li :class="{'current':current===item.type}" v-for="item in data.tab_menu" :key="item.type">{{ item.label }}</li>
+        <li @click="toggleMenu(item.type)" :class="{'current':current_menu===item.type}" v-for="item in data.tab_menu" :key="item.type">{{ item.label }}</li>
       </ul>
       <el-form ref="form" :model="form">
         <el-form-item>
@@ -47,8 +47,11 @@ export default {
       ],
     });
 
-    let current = ref(data.tab_menu[0].type)
-    return { data ,current};
+    let current_menu = ref(data.tab_menu[0].type)
+    const toggleMenu=(type)=>{
+      current_menu.value =type
+    }
+    return { data ,current_menu,toggleMenu};
   },
 };
 </script>
