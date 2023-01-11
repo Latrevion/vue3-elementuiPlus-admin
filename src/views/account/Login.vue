@@ -2,37 +2,46 @@
   <div id="login">
     <div class="form-wrap">
       <ul class="menu-tab">
-        <li @click="toggleMenu(item.type)" :class="{'current':current_menu===item.type}" v-for="item in data.tab_menu" :key="item.type">{{ item.label }}</li>
+        <li
+            @click="toggleMenu(item.type)"
+            :class="{ 'current': data.current_menu === item.type }"
+            v-for="item in data.tab_menu"
+            :key="item.type"
+        >
+          {{ item.label }}
+        </li>
       </ul>
-      <el-form :model="form" >
-        <el-form-item>
+      <el-form :model="data.form" :rules="data.form_rules">
+        <el-form-item prop="username">
           <label class="form-label">用户名</label>
-          <el-input v-model="username"></el-input>
+          <el-input v-model="data.form.username"></el-input>
         </el-form-item>
-        <el-form-item>
+        <el-form-item prop="password">
           <label class="form-label">密码</label>
-          <el-input type="password" v-model="password"></el-input>
+          <el-input type="password" v-model="data.form.password"></el-input>
         </el-form-item>
-        <el-form-item v-show="current_menu === 'register'">
+        <el-form-item prop="passwords" v-show="data.current_menu === 'register'">
           <label class="form-label">确认密码</label>
-          <el-input type="password" v-model="passwords"></el-input>
+          <el-input type="password" v-model="data.form.passwords"></el-input>
         </el-form-item>
-        <el-form-item>
+        <el-form-item prop="code">
           <label class="form-label">验证码</label>
           <el-row :gutter="10">
             <el-col :span="14">
-              <el-input v-model="code"></el-input>
+              <el-input v-model="data.form.code"></el-input>
             </el-col>
             <el-col :span="10">
               <el-button type="success" class="el-button-block"
-                >获取验证码</el-button
+              >获取验证码
+              </el-button
               >
             </el-col>
           </el-row>
         </el-form-item>
         <el-form-item>
           <el-button type="danger" class="el-button-block" disabled
-            >登录</el-button
+          >登录
+          </el-button
           >
         </el-form-item>
       </el-form>
@@ -41,32 +50,47 @@
 </template>
 
 <script>
-import { reactive,ref,toRefs } from "vue";
-export default {
-  props:{},
-  setup(props, context) {
-    const form = reactive({
-      item:{
-        username:'',
-        password:'',
-        passwords:'',
-        code:''
-      }
-    });
-    const data = reactive({
-      tab_menu: [
-        { type: "login", label: "登录" },
-        { type: "register", label: "注册" },
-      ],
-    });
 
-    let current_menu = ref(data.tab_menu[0].type)
-    const toggleMenu=(type)=>{
-      current_menu.value =type
+import {reactive} from "vue"
+
+export default {
+  props: {},
+  setup(props, context) {
+    const data = reactive({
+      form: {
+        username: "",
+        password: "",
+        passwords: "",
+        code: ""
+      },
+      form_rules: {
+        username: [
+          {required: true, message: "请输入用户名", trigger: "change"},
+          {min: 3, max: 5, message: "长度在3-5个字符", trigger: "change"}
+        ],
+        password:[
+          {required:true,message:'请输入密码',trigger:'change'}
+        ],
+        passwords:[
+          {required:true,message:'请再次输入密码',trigger:'change'}
+        ],
+        code:[
+          {required:true,message:'输入验证码',trigger:'change'}
+        ]
+      },
+      tab_menu: [
+        {type: "login", label: "登录"},
+        {type: "register", label: "注册"},
+      ],
+      current_menu: "login",
+    })
+
+    const toggleMenu = (type) => {
+      data.current_menu = type
     }
-    return { ...toRefs(form) ,current_menu,toggleMenu,data};
+    return {data, toggleMenu}
   },
-};
+}
 </script>
 
 <style lang="scss" scoped>
@@ -83,6 +107,7 @@ export default {
 
 .menu-tab {
   text-align: center;
+
   li {
     display: inline-block;
     padding: 10px 24px;
@@ -91,6 +116,7 @@ export default {
     font-size: 14px;
     border-radius: 5px;
     cursor: pointer;
+
     &.current {
       background-color: rgba(0, 0, 0, 0.1);
     }
@@ -102,6 +128,7 @@ export default {
   color: #fff;
   font-size: 14px;
 }
+
 :deep(.el-form-item__content) {
   display: block;
 }
