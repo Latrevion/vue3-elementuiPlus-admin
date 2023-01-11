@@ -2,8 +2,7 @@
   <div id="login">
     <div class="form-wrap">
       <ul class="menu-tab">
-        <li class="current">登录</li>
-        <li>注册</li>
+        <li :class="{'current':current===item.type}" v-for="item in data.tab_menu" :key="item.type">{{ item.label }}</li>
       </ul>
       <el-form ref="form" :model="form">
         <el-form-item>
@@ -38,7 +37,20 @@
 </template>
 
 <script>
-export default {};
+import { reactive,ref } from "vue";
+export default {
+  setup(props, context) {
+    const data = reactive({
+      tab_menu: [
+        { type: "login", label: "登录" },
+        { type: "register", label: "注册" },
+      ],
+    });
+
+    let current = ref(data.tab_menu[0].type)
+    return { data ,current};
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -74,7 +86,7 @@ export default {};
   color: #fff;
   font-size: 14px;
 }
-:deep(.el-form-item__content){
-    display: block;
+:deep(.el-form-item__content) {
+  display: block;
 }
 </style>
