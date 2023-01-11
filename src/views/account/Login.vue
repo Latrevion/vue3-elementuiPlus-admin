@@ -4,24 +4,24 @@
       <ul class="menu-tab">
         <li @click="toggleMenu(item.type)" :class="{'current':current_menu===item.type}" v-for="item in data.tab_menu" :key="item.type">{{ item.label }}</li>
       </ul>
-      <el-form ref="form" :model="form">
+      <el-form :model="form" >
         <el-form-item>
           <label class="form-label">用户名</label>
-          <el-input></el-input>
+          <el-input v-model="username"></el-input>
         </el-form-item>
         <el-form-item>
           <label class="form-label">密码</label>
-          <el-input type="password"></el-input>
+          <el-input type="password" v-model="password"></el-input>
         </el-form-item>
         <el-form-item v-show="current_menu === 'register'">
           <label class="form-label">确认密码</label>
-          <el-input type="password"></el-input>
+          <el-input type="password" v-model="passwords"></el-input>
         </el-form-item>
         <el-form-item>
           <label class="form-label">验证码</label>
           <el-row :gutter="10">
             <el-col :span="14">
-              <el-input></el-input>
+              <el-input v-model="code"></el-input>
             </el-col>
             <el-col :span="10">
               <el-button type="success" class="el-button-block"
@@ -41,9 +41,18 @@
 </template>
 
 <script>
-import { reactive,ref } from "vue";
+import { reactive,ref,toRefs } from "vue";
 export default {
+  props:{},
   setup(props, context) {
+    const form = reactive({
+      item:{
+        username:'',
+        password:'',
+        passwords:'',
+        code:''
+      }
+    });
     const data = reactive({
       tab_menu: [
         { type: "login", label: "登录" },
@@ -55,7 +64,7 @@ export default {
     const toggleMenu=(type)=>{
       current_menu.value =type
     }
-    return { data ,current_menu,toggleMenu};
+    return { ...toRefs(form) ,current_menu,toggleMenu,data};
   },
 };
 </script>
