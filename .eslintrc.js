@@ -12,6 +12,8 @@ module.exports = {
     parser: "@babel/eslint-parser",
   },
   rules: {
+    //关闭未引用变量报错
+    "no-unused-vars": "off",
     'vue/multi-word-component-names': "off",
     "prettier/prettier": "off",
     "no-console": process.env.NODE_ENV === "production" ? "warn" : "off",
