@@ -52,15 +52,16 @@
 <script>
 
 import {reactive} from "vue"
+import {validate_email, validate_password, validate_code} from "@/utils/validate.js"
 
 export default {
   props: {},
   setup(props, context) {
     const validate_name_rules = (rule, value, callback) => {
-      const regEmail =  /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
+      let regEmail = validate_email(value)
       if (value === "") {
         callback(new Error("请输入邮箱"))
-      } else if (!regEmail.test(value)) {
+      } else if (!regEmail) {
         callback(new Error("请输入正确的邮箱"))
       } else {
         callback()
@@ -68,10 +69,10 @@ export default {
     }
 
     const validate_password_rules = (rule, value, callback) => {
-      const regPassword = /^(?!\D+$)(?![^a-zA-Z]+$)\S{6,20}$/
+      let regPassword = validate_password(value)
       if (value === "") {
         callback(new Error("请输入密码"))
-      } else if (!regPassword.test(value)) {
+      } else if (!regPassword) {
         callback(new Error("密码必须为6-20位数字和字母组合"))
       } else {
         callback()
@@ -80,12 +81,15 @@ export default {
 
     //校验确认密码
     const validate_passwords_rules = (rule, value, callback) => {
-      const regPassword = /^(?!\D+$)(?![^a-zA-Z]+$)\S{6,20}$/
+      //如果是在登录页，直接通过，不需要验证确认密码
+      if (data.current_menu === "login") {callback()}
+
+      let regPassword = validate_password(value)
       //获取密码
       const passwordValue = data.form.password
       if (value === "") {
         callback(new Error("请输入确认密码"))
-      } else if (!regPassword.test(value)) {
+      } else if (!regPassword) {
         callback(new Error("密码必须为6-20位数字和字母组合"))
       } else if (passwordValue && passwordValue !== value) {
         callback(new Error("两次输入密码不一致"))
@@ -95,11 +99,12 @@ export default {
       }
     }
 
+    //校验验证码
     const validate_code_rules = (rule, value, callback) => {
-      const regCode = /^[a-z0-9]{6}$/
+      let regCode = validate_code(value)
       if (value === "") {
         callback(new Error("请输入验证码"))
-      } else if (!regCode.test(value)) {
+      } else if (!regCode) {
         callback(new Error("验证码错误，请重新输入"))
       } else {
         callback()
@@ -116,16 +121,16 @@ export default {
       },
       form_rules: {
         username: [
-          {validator:validate_name_rules,trigger:'change'}
+          {validator: validate_name_rules, trigger: "change"}
         ],
         password: [
-          {validator:validate_password_rules,trigger:'change'}
+          {validator: validate_password_rules, trigger: "change"}
         ],
         passwords: [
-          {validator:validate_passwords_rules,trigger:'change'}
+          {validator: validate_passwords_rules, trigger: "change"}
         ],
         code: [
-          {validator:validate_code_rules,trigger:'change'}
+          {validator: validate_code_rules, trigger: "change"}
         ]
       },
       tab_menu: [
