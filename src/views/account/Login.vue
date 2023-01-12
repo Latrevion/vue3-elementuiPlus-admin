@@ -56,26 +56,76 @@ import {reactive} from "vue"
 export default {
   props: {},
   setup(props, context) {
+    const validate_name_rules = (rule, value, callback) => {
+      const regEmail =  /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
+      if (value === "") {
+        callback(new Error("请输入邮箱"))
+      } else if (!regEmail.test(value)) {
+        callback(new Error("请输入正确的邮箱"))
+      } else {
+        callback()
+      }
+    }
+
+    const validate_password_rules = (rule, value, callback) => {
+      const regPassword = /^(?!\D+$)(?![^a-zA-Z]+$)\S{6,20}$/
+      if (value === "") {
+        callback(new Error("请输入密码"))
+      } else if (!regPassword.test(value)) {
+        callback(new Error("密码必须为6-20位数字和字母组合"))
+      } else {
+        callback()
+      }
+    }
+
+    //校验确认密码
+    const validate_passwords_rules = (rule, value, callback) => {
+      const regPassword = /^(?!\D+$)(?![^a-zA-Z]+$)\S{6,20}$/
+      //获取密码
+      const passwordValue = data.form.password
+      if (value === "") {
+        callback(new Error("请输入确认密码"))
+      } else if (!regPassword.test(value)) {
+        callback(new Error("密码必须为6-20位数字和字母组合"))
+      } else if (passwordValue && passwordValue !== value) {
+        callback(new Error("两次输入密码不一致"))
+
+      } else {
+        callback()
+      }
+    }
+
+    const validate_code_rules = (rule, value, callback) => {
+      const regCode = /^[a-z0-9]{6}$/
+      if (value === "") {
+        callback(new Error("请输入验证码"))
+      } else if (!regCode.test(value)) {
+        callback(new Error("验证码错误，请重新输入"))
+      } else {
+        callback()
+      }
+    }
+
+
     const data = reactive({
       form: {
-        username: "",
-        password: "",
-        passwords: "",
-        code: ""
+        username: "", //用户名
+        password: "", //密码
+        passwords: "",//确认密码
+        code: "",    //验证码
       },
       form_rules: {
         username: [
-          {required: true, message: "请输入用户名", trigger: "change"},
-          {min: 3, max: 5, message: "长度在3-5个字符", trigger: "change"}
+          {validator:validate_name_rules,trigger:'change'}
         ],
-        password:[
-          {required:true,message:'请输入密码',trigger:'change'}
+        password: [
+          {validator:validate_password_rules,trigger:'change'}
         ],
-        passwords:[
-          {required:true,message:'请再次输入密码',trigger:'change'}
+        passwords: [
+          {validator:validate_passwords_rules,trigger:'change'}
         ],
-        code:[
-          {required:true,message:'输入验证码',trigger:'change'}
+        code: [
+          {validator:validate_code_rules,trigger:'change'}
         ]
       },
       tab_menu: [

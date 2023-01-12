@@ -11,7 +11,6 @@ const { ElementPlusResolver } = require('unplugin-vue-components/resolvers')
 
 const path = require('path');
 module.exports = {
-  lintOnSave: false,
   // 基本路径
   publicPath: process.env.NODE_ENV === 'production' ? '' : './',
   // 输出文件目录
@@ -22,7 +21,6 @@ module.exports = {
    * webpack配置,see https://github.com/vuejs/vue-cli/blob/dev/docs/webpack.md
    **/
   chainWebpack: (config) => {},
-  configureWebpack: (config) => {},
   // 生产环境是否生成 sourceMap 文件
   productionSourceMap: false,
   // css相关配置
