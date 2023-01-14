@@ -40,7 +40,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="danger" class="el-button-block" disabled
-          >登录
+          >{{data.current_menu==='login'?'登录':"注册"}}
           </el-button
           >
         </el-form-item>
