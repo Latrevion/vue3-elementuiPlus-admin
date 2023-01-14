@@ -63,9 +63,9 @@ export default {
 
     const instance = getCurrentInstance()
     const {ctx,proxy} = getCurrentInstance()
-    console.log(instance)
-    console.log(ctx)
-    console.log(proxy)
+    // console.log(instance)
+    // console.log(ctx)
+    // console.log(proxy)
 
     const handlerGetCode =()=>{
       GetCode()
