@@ -55,13 +55,13 @@ module.exports = {
     https:false,//编译失败时刷新页面
     hot:true,//开启热加载
     proxy: {
-      "/devApi": {
-        target:"http://v3.web-jshtml.cn/api",
+      [process.env.VUE_APP_API]: {
+        target:process.env.VUE_APP_API_TARGET,
         changeOrigin:true,//是否跨域
         ws:false, //websockets
         secure:false, //https接口
         pathRewrite:{
-          "^/devApi":"" //重写开头/devApi字符串为空
+         [`^${process.env.VUE_APP_API}`]:"" //重写开头/devApi字符串为空
         }
       }
     }
