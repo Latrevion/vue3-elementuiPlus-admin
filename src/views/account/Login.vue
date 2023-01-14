@@ -31,7 +31,7 @@
               <el-input v-model="data.form.code"></el-input>
             </el-col>
             <el-col :span="10">
-              <el-button type="success" class="el-button-block"
+              <el-button type="success" class="el-button-block" @click="getCode"
               >获取验证码
               </el-button
               >
@@ -51,12 +51,22 @@
 
 <script>
 
-import {reactive} from "vue"
+import {reactive, getCurrentInstance} from "vue"
 import {validate_email, validate_password, validate_code} from "@/utils/validate.js"
 
 export default {
   props: {},
   setup(props, context) {
+
+    const instance = getCurrentInstance()
+    const {ctx,proxy} = getCurrentInstance()
+    console.log(instance)
+    console.log(ctx)
+    console.log(proxy)
+
+    const getCode= ( )=>{
+        proxy.$axios.post('http://v3.web-jshtml.cn/api/getCode/')
+    }
     const validate_name_rules = (rule, value, callback) => {
       let regEmail = validate_email(value)
       if (value === "") {
@@ -143,7 +153,7 @@ export default {
     const toggleMenu = (type) => {
       data.current_menu = type
     }
-    return {data, toggleMenu}
+    return {data, toggleMenu,getCode}
   },
 }
 </script>
