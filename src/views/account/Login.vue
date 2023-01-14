@@ -31,7 +31,7 @@
               <el-input v-model="data.form.code"></el-input>
             </el-col>
             <el-col :span="10">
-              <el-button type="success" class="el-button-block" @click="getCode"
+              <el-button type="success" class="el-button-block" @click="handlerGetCode"
               >获取验证码
               </el-button
               >
@@ -54,6 +54,9 @@
 import {reactive, getCurrentInstance} from "vue"
 import {validate_email, validate_password, validate_code} from "@/utils/validate.js"
 
+//api
+import {GetCode} from "@/api/common.js"
+
 export default {
   props: {},
   setup(props, context) {
@@ -64,6 +67,9 @@ export default {
     console.log(ctx)
     console.log(proxy)
 
+    const handlerGetCode =()=>{
+      GetCode()
+    }
     const getCode= ( )=>{
         proxy.$axios.post('http://v3.web-jshtml.cn/api/getCode/')
     }
@@ -153,7 +159,7 @@ export default {
     const toggleMenu = (type) => {
       data.current_menu = type
     }
-    return {data, toggleMenu,getCode}
+    return {data, toggleMenu,getCode,handlerGetCode}
   },
 }
 </script>
