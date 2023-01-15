@@ -15,6 +15,7 @@ module.exports = {
     //关闭未引用变量报错
     "no-unused-vars": "off",
     'vue/multi-word-component-names': "off",
+    'no-undef': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     "prettier/prettier": "off",
     "no-console": process.env.NODE_ENV === "production" ? "warn" : "off",
     "no-debugger": process.env.NODE_ENV === "production" ? "warn" : "off",
