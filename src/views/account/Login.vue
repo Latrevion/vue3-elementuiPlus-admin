@@ -62,12 +62,42 @@ export default {
   setup(props, context) {
 
     const instance = getCurrentInstance()
-    const {ctx,proxy} = getCurrentInstance()
-    // console.log(instance)
-    // console.log(ctx)
-    // console.log(proxy)
+    const {proxy} = getCurrentInstance()
+
 
     const handlerGetCode =()=>{
+      const username =data.form.username //获取用户名
+      const password = data.form.password //获取用户密码
+      const passwords = data.form.passwords //获取确认密码
+      //校验用户名
+      if(!validate_email(username)){
+        // eslint-disable-next-line no-undef
+        ElMessage({
+          message: '用户名不能为空 或 格式不正确',
+          type: 'error',
+        })
+        return false
+      }
+
+      //校验密码
+      if (!validate_password(password)){
+        // eslint-disable-next-line no-undef
+        ElMessage({
+          message: '密码不能为空 或 格式不正确',
+          type: 'error',
+        })
+        return false
+      }
+      //判断为注册，校验两次密码
+      if (data.current_menu ==='register' && (password !== passwords)){
+        // eslint-disable-next-line no-undef
+        ElMessage({
+          message:'两次密码不一致',
+          type:'error'
+        })
+        return false
+      }
+
       GetCode()
     }
     const getCode= ( )=>{
