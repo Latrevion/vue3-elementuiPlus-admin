@@ -97,8 +97,23 @@ export default {
         })
         return false
       }
+      const requestData ={
+        username:data.form.username,
+        module:"register"
+      }
 
-      GetCode()
+
+
+      GetCode(requestData).then(response=>{
+        const data = response.data
+        let dataMessage = data.message.slice(0,9)
+        //用户已存在
+        if (data.resCode === 1024){
+          // eslint-disable-next-line no-undef
+          ElMessage.error(dataMessage)
+          return false
+        }
+      }).catch(error =>{})
     }
     const getCode= ( )=>{
         proxy.$axios.post('http://v3.web-jshtml.cn/api/getCode/')
