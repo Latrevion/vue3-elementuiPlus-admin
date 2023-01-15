@@ -32,7 +32,8 @@
             </el-col>
             <el-col :span="10">
               <el-button type="success" class="el-button-block" @click="handlerGetCode"
-              >获取验证码
+                         :loading="data.code_button_laoding" :disabled="data.code_button_disabled"
+              >{{ data.code_button_text }}
               </el-button
               >
             </el-col>
@@ -40,7 +41,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="danger" class="el-button-block" disabled
-          >{{data.current_menu==='login'?'登录':"注册"}}
+          >{{ data.current_menu === "login" ? "登录" : "注册" }}
           </el-button
           >
         </el-form-item>
@@ -51,7 +52,7 @@
 
 <script>
 
-import {reactive, getCurrentInstance} from "vue"
+import {reactive, getCurrentInstance, onBeforeMount} from "vue"
 import {validate_email, validate_password, validate_code} from "@/utils/validate.js"
 
 //api
@@ -63,61 +64,96 @@ export default {
 
     const instance = getCurrentInstance()
     const {proxy} = getCurrentInstance()
+    console.log(proxy,123)
 
 
-    const handlerGetCode =()=>{
-      const username =data.form.username //获取用户名
+    const handlerGetCode = () => {
+      const username = data.form.username //获取用户名
       const password = data.form.password //获取用户密码
       const passwords = data.form.passwords //获取确认密码
       //校验用户名
-      if(!validate_email(username)){
+      if (!validate_email(username)) {
         // eslint-disable-next-line no-undef
         ElMessage({
-          message: '用户名不能为空 或 格式不正确',
-          type: 'error',
+          message: "用户名不能为空 或 格式不正确",
+          type: "error",
         })
         return false
       }
 
       //校验密码
-      if (!validate_password(password)){
+      if (!validate_password(password)) {
         // eslint-disable-next-line no-undef
         ElMessage({
-          message: '密码不能为空 或 格式不正确',
-          type: 'error',
+          message: "密码不能为空 或 格式不正确",
+          type: "error",
         })
         return false
       }
       //判断为注册，校验两次密码
-      if (data.current_menu ==='register' && (password !== passwords)){
+      if (data.current_menu === "register" && (password !== passwords)) {
         // eslint-disable-next-line no-undef
         ElMessage({
-          message:'两次密码不一致',
-          type:'error'
+          message: "两次密码不一致",
+          type: "error"
         })
         return false
       }
-      const requestData ={
-        username:data.form.username,
-        module:"register"
+      const requestData = {
+        username: data.form.username,
+        module: "register"
       }
 
 
+      data.code_button_laoding = true
+      data.code_button_text = "发送中"
 
-      GetCode(requestData).then(response=>{
+      GetCode(requestData).then(response => {
         const data = response.data
-        let dataMessage = data.message.slice(0,9)
+
         //用户已存在
-        if (data.resCode === 1024){
-          // eslint-disable-next-line no-undef
+        if (data.resCode === 1024) {
+          let dataMessage = data.message.slice(0, 9)
           ElMessage.error(dataMessage)
+          proxy.data.code_button_laoding = false
+          proxy.data.code_button_text = "获取验证码"
           return false
         }
-      }).catch(error =>{})
+
+        let dataMessage = data.message.slice(0, 18)
+        ElMessage.success(dataMessage)
+        //执行倒计时
+        countdown()
+      }).catch(error => {
+        data.code_button_disabled=false
+        data.code_button_text='获取验证码'
+      })
     }
-    const getCode= ( )=>{
-        proxy.$axios.post('http://v3.web-jshtml.cn/api/getCode/')
+
+    //倒计时
+    const countdown=(time)=>{
+      let second =time ||60
+      data.code_button_laoding=false //取消加载
+      data.code_button_disabled=true//禁用按钮
+      data.code_button_text=`倒计时${second}秒`
+      //判断是否有计时器，存在则删除
+      if (data.code_button_timer){clearInterval(data.code_button_timer)}
+      //开启计时器
+      data.code_button_timer=setInterval(()=>{
+        second--;
+        data.code_button_text=`倒计时${second}秒` //按钮文本
+        if(second<=0){
+          data.code_button_text='重新获取' //按钮文本
+          data.code_button_disabled=false //启用按钮
+          clearInterval(data.code_button_timer)//清理计时器
+        }
+      },1000)
     }
+
+    onBeforeMount(()=>{
+      clearInterval(data.code_button_timer) //删除倒计时
+    })
+
     const validate_name_rules = (rule, value, callback) => {
       let regEmail = validate_email(value)
       if (value === "") {
@@ -199,12 +235,19 @@ export default {
         {type: "register", label: "注册"},
       ],
       current_menu: "login",
+      //   获取验证码按钮交互
+      code_button_disabled: false,//启动按钮
+      code_button_laoding: false,//加载状态
+      code_button_text: "获取验证码",//按钮文本
+      code_button_timer: null //定时器
     })
 
     const toggleMenu = (type) => {
       data.current_menu = type
     }
-    return {data, toggleMenu,getCode,handlerGetCode}
+
+
+    return {data, toggleMenu,  handlerGetCode}
   },
 }
 </script>
