@@ -104,7 +104,6 @@ export default {
         module: "register"
       }
 
-
       data.code_button_laoding = true
       data.code_button_text = "发送中"
 
@@ -115,9 +114,13 @@ export default {
         if (data.resCode === 1024) {
           let dataMessage = data.message.slice(0, 9)
           ElMessage.error(dataMessage)
-          proxy.data.code_button_laoding = false
-          proxy.data.code_button_text = "获取验证码"
-          return false
+          // proxy.data.code_button_laoding = false
+          // proxy.data.code_button_text = "获取验证码"
+          // return false
+          // return Promise.reject()
+          // Promise.reject(false)
+          // return ;
+          throw new Error('xxxx')
         }
 
         let dataMessage = data.message.slice(0, 18)
