@@ -9,3 +9,11 @@ export function GetCode(data){
   })
 }
 
+//异常状态码演示接口
+export function ErrorHttp(data){
+  return instance.request({
+    method:'post',
+    url:'/error/',
+    data
+  })
+}

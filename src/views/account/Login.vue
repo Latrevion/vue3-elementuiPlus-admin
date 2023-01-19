@@ -11,7 +11,7 @@
           {{ item.label }}
         </li>
       </ul>
-      <el-form :model="data.form" :rules="data.form_rules">
+      <el-form ref="account_form" :model="data.form" :rules="data.form_rules">
         <el-form-item prop="username">
           <label class="form-label">用户名</label>
           <el-input v-model="data.form.username"></el-input>
@@ -40,7 +40,7 @@
           </el-row>
         </el-form-item>
         <el-form-item>
-          <el-button type="danger" class="el-button-block" disabled
+          <el-button type="danger" class="el-button-block" :disabled="data.submit_button_disabled"
           >{{ data.current_menu === "login" ? "登录" : "注册" }}
           </el-button
           >
@@ -56,7 +56,7 @@ import {reactive, getCurrentInstance, onBeforeMount} from "vue"
 import {validate_email, validate_password, validate_code} from "@/utils/validate.js"
 
 //api
-import {GetCode} from "@/api/common.js"
+import {GetCode,ErrorHttp} from "@/api/common.js"
 
 export default {
   props: {},
@@ -108,28 +108,27 @@ export default {
       data.code_button_text = "发送中"
 
       GetCode(requestData).then(response => {
-        const data = response.data
-
+        const resData = response
+        console.log(123,resData)
         //用户已存在
-        if (data.resCode === 1024) {
-          let dataMessage = data.message.slice(0, 9)
+        if (resData.resCode === 1024) {
+          let dataMessage = resData.message.slice(0, 9)
           ElMessage.error(dataMessage)
-          // proxy.data.code_button_laoding = false
-          // proxy.data.code_button_text = "获取验证码"
-          // return false
-          // return Promise.reject()
-          // Promise.reject(false)
-          // return ;
-          throw new Error('xxxx')
+          proxy.data.code_button_laoding = false
+          proxy.data.code_button_text = "获取验证码"
+          return false
         }
-
-        let dataMessage = data.message.slice(0, 18)
+        //激活提交按钮
+        data.submit_button_disabled=false
+        //成功就提示
+        let dataMessage = resData.message.slice(0, 18)
         ElMessage.success(dataMessage)
         //执行倒计时
-        countdown()
+        countdown(60)
       }).catch(error => {
-        data.code_button_disabled=false
-        data.code_button_text='获取验证码'
+        proxy.data.code_button_laoding = false
+        proxy.data.code_button_disabled=false
+        proxy.data.code_button_text='获取验证码'
       })
     }
 
@@ -242,15 +241,26 @@ export default {
       code_button_disabled: false,//启动按钮
       code_button_laoding: false,//加载状态
       code_button_text: "获取验证码",//按钮文本
-      code_button_timer: null //定时器
+      code_button_timer: null, //定时器
+      submit_button_disabled:true //提交按钮
     })
 
     const toggleMenu = (type) => {
       data.current_menu = type
     }
+    //提交表单
+    const submitForm = ()=>{
+      proxy.$refs.account_form.validate((valid)=>{
+        if (valid){
+          alert('sunmit!')
+        }else{
+          alert('验证不通过！')
+          return false
+        }
+      })
+    }
 
-
-    return {data, toggleMenu,  handlerGetCode}
+    return {data, toggleMenu,  handlerGetCode,submitForm}
   },
 }
 </script>
