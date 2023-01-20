@@ -52,13 +52,14 @@
 </template>
 
 <script>
-import {Register} from "@/api/account.js"
+import {Register, Login} from "@/api/account.js"
 import {reactive, getCurrentInstance, onBeforeMount} from "vue"
 import {validate_email, validate_password, validate_code} from "@/utils/validate.js"
-import  sha1 from 'js-sha1'
+import sha1 from "js-sha1"
 
 //api
 import {GetCode} from "@/api/common.js"
+
 
 export default {
   props: {},
@@ -241,7 +242,7 @@ export default {
       current_menu: "login",
       //   获取验证码按钮交互
       code_button_disabled: false,//启动按钮
-      code_button_laoding: false,//加载状态
+      code_button_loading: false,//加载状态
       code_button_text: "获取验证码",//按钮文本
       code_button_timer: null, //定时器
       submit_button_disabled: true //提交按钮
@@ -270,12 +271,13 @@ export default {
         code: data.form.code,
       }
       data.submit_button_loading = true
+      console.log('zhuce')
       Register(requestData).then(response => {
         ElMessage({
           message: response.message,
           type: "success"
         })
-        console.log('register')
+        console.log("register")
         reset()//重置元素
       }).catch(error => {
         data.submit_button_loading = false
@@ -300,7 +302,25 @@ export default {
 
     }
 
-    return {data, toggleMenu, handlerGetCode, submitForm, register, reset}
+    const login = () => {
+      const requestData = {
+        username: data.form.username,
+        password: sha1(data.form.password),
+        code: data.form.code,
+      }
+      console.log('denglu')
+      data.submit_button_loading = true
+      Login(requestData).then(response => {
+        ElMessage({
+          message: response.message,
+          type: "success"
+        })
+        reset()
+      }).catch(error => {
+        data.submit_button_loading = false
+      })
+    }
+    return {data, toggleMenu, handlerGetCode, submitForm, register,login, reset}
   },
 }
 </script>
