@@ -52,113 +52,22 @@
 </template>
 
 <script>
-import {Register, Login} from "@/api/account.js"
-import {reactive, getCurrentInstance, onBeforeMount} from "vue"
-import {validate_email, validate_password, validate_code} from "@/utils/validate.js"
+import {reactive, getCurrentInstance,  onBeforeUnmount} from "vue"
+//加密算法
 import sha1 from "js-sha1"
-
+//校验类
+import {validate_email, validate_password, validate_code} from "@/utils/validate.js"
 //api
 import {GetCode} from "@/api/common.js"
-
+import {Register, Login} from "@/api/account.js"
 
 export default {
   props: {},
   setup(props, context) {
-
-    const instance = getCurrentInstance()
+    //获取实例上下文
     const {proxy} = getCurrentInstance()
-    console.log(proxy, 123)
 
-
-    const handlerGetCode = () => {
-      const username = data.form.username //获取用户名
-      const password = data.form.password //获取用户密码
-      const passwords = data.form.passwords //获取确认密码
-      //校验用户名
-      if (!validate_email(username)) {
-        // eslint-disable-next-line no-undef
-        ElMessage({
-          message: "用户名不能为空 或 格式不正确",
-          type: "error",
-        })
-        return false
-      }
-
-      //校验密码
-      if (!validate_password(password)) {
-        // eslint-disable-next-line no-undef
-        ElMessage({
-          message: "密码不能为空 或 格式不正确",
-          type: "error",
-        })
-        return false
-      }
-      //判断为注册，校验两次密码
-      if (data.current_menu === "register" && (password !== passwords)) {
-        // eslint-disable-next-line no-undef
-        ElMessage({
-          message: "两次密码不一致",
-          type: "error"
-        })
-        return false
-      }
-      const requestData = {
-        username: data.form.username,
-        module: "register"
-      }
-
-      data.code_button_laoding = true
-      data.code_button_text = "发送中"
-
-      GetCode(requestData).then(response => {
-        const resData = response
-        console.log(123, resData)
-        //用户已存在
-        if (resData.resCode === 1024) {
-          let dataMessage = resData.message.slice(0, 9)
-          ElMessage.error(dataMessage)
-          proxy.data.code_button_laoding = false
-          proxy.data.code_button_text = "获取验证码"
-          return false
-        }
-        //激活提交按钮
-        data.submit_button_disabled = false
-        //成功就提示
-        let dataMessage = resData.message.slice(0, 18)
-        ElMessage.success(dataMessage)
-        //执行倒计时
-        countdown(60)
-      }).catch(error => {
-        proxy.data.code_button_laoding = false
-        proxy.data.code_button_disabled = false
-        proxy.data.code_button_text = "获取验证码"
-      })
-    }
-
-    //倒计时
-    const countdown = (time) => {
-      let second = time || 60
-      data.code_button_laoding = false //取消加载
-      data.code_button_disabled = true//禁用按钮
-      data.code_button_text = `倒计时${second}秒`
-      //判断是否有计时器，存在则删除
-      if (data.code_button_timer) {clearInterval(data.code_button_timer)}
-      //开启计时器
-      data.code_button_timer = setInterval(() => {
-        second--
-        data.code_button_text = `倒计时${second}秒` //按钮文本
-        if (second <= 0) {
-          data.code_button_text = "重新获取" //按钮文本
-          data.code_button_disabled = false //启用按钮
-          clearInterval(data.code_button_timer)//清理计时器
-        }
-      }, 1000)
-    }
-
-    onBeforeMount(() => {
-      clearInterval(data.code_button_timer) //删除倒计时
-    })
-
+    //校验用户名
     const validate_name_rules = (rule, value, callback) => {
       let regEmail = validate_email(value)
       if (value === "") {
@@ -170,6 +79,7 @@ export default {
       }
     }
 
+    //校验密码
     const validate_password_rules = (rule, value, callback) => {
       let regPassword = validate_password(value)
       if (value === "") {
@@ -180,6 +90,7 @@ export default {
         callback()
       }
     }
+
 
     //校验确认密码
     const validate_passwords_rules = (rule, value, callback) => {
@@ -248,6 +159,93 @@ export default {
       submit_button_disabled: true //提交按钮
     })
 
+
+    const handlerGetCode = () => {
+      const username = data.form.username //获取用户名
+      const password = data.form.password //获取用户密码
+      const passwords = data.form.passwords //获取确认密码
+      //校验用户名
+      if (!validate_email(username)) {
+        // eslint-disable-next-line no-undef
+        ElMessage({
+          message: "用户名不能为空 或 格式不正确",
+          type: "error",
+        })
+        return false
+      }
+
+      //校验密码
+      if (!validate_password(password)) {
+        // eslint-disable-next-line no-undef
+        ElMessage({
+          message: "密码不能为空 或 格式不正确",
+          type: "error",
+        })
+        return false
+      }
+      //判断为注册，校验两次密码
+      if (data.current_menu === "register" && (password !== passwords)) {
+        // eslint-disable-next-line no-undef
+        ElMessage({
+          message: "两次密码不一致",
+          type: "error"
+        })
+        return false
+      }
+      const requestData = {
+        username: data.form.username,
+        module: data.current_menu
+      }
+
+      data.code_button_laoding = true
+      data.code_button_text = "发送中"
+
+      GetCode(requestData).then(response => {
+        const resData = response
+        console.log(123, resData)
+        //用户已存在
+        if (resData.resCode === 1024) {
+          let dataMessage = resData.message.slice(0, 9)
+          ElMessage.error(dataMessage)
+          proxy.data.code_button_laoding = false
+          proxy.data.code_button_text = "获取验证码"
+          return false
+        }
+        //激活提交按钮
+        data.submit_button_disabled = false
+        //成功就提示
+        let dataMessage = resData.message.slice(0, 18)
+        ElMessage.success(dataMessage)
+        //执行倒计时
+        countdown(60)
+      }).catch(error => {
+        proxy.data.code_button_laoding = false
+        proxy.data.code_button_disabled = false
+        proxy.data.code_button_text = "获取验证码"
+      })
+    }
+
+    //倒计时
+    const countdown = (time) => {
+      let second = time || 60
+      data.code_button_laoding = false //取消加载
+      data.code_button_disabled = true//禁用按钮
+      data.code_button_text = `倒计时${second}秒`
+      //判断是否有计时器，存在则删除
+      if (data.code_button_timer) {clearInterval(data.code_button_timer)}
+      //开启计时器
+      data.code_button_timer = setInterval(() => {
+        second--
+        data.code_button_text = `倒计时${second}秒` //按钮文本
+        if (second <= 0) {
+          data.code_button_text = "重新获取" //按钮文本
+          data.code_button_disabled = false //启用按钮
+          clearInterval(data.code_button_timer)//清理计时器
+        }
+      }, 1000)
+    }
+
+
     const toggleMenu = (type) => {
       data.current_menu = type
     }
@@ -271,7 +269,7 @@ export default {
         code: data.form.code,
       }
       data.submit_button_loading = true
-      console.log('zhuce')
+      console.log("zhuce")
       Register(requestData).then(response => {
         ElMessage({
           message: response.message,
@@ -302,13 +300,14 @@ export default {
 
     }
 
+    //登陆
     const login = () => {
       const requestData = {
         username: data.form.username,
         password: sha1(data.form.password),
         code: data.form.code,
       }
-      console.log('denglu')
+      console.log("denglu")
       data.submit_button_loading = true
       Login(requestData).then(response => {
         ElMessage({
@@ -320,7 +319,13 @@ export default {
         data.submit_button_loading = false
       })
     }
-    return {data, toggleMenu, handlerGetCode, submitForm, register,login, reset}
+
+
+  // 组件销毁之前 - 生命周期
+    onBeforeUnmount(() => {
+      clearInterval(data.code_button_timer) //删除倒计时
+    })
+    return {data, toggleMenu, handlerGetCode, submitForm, register, login, reset}
   },
 }
 </script>
