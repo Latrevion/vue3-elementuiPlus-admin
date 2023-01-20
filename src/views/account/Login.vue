@@ -41,6 +41,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="danger" class="el-button-block" :disabled="data.submit_button_disabled"
+                     :loading="data.submit_button_loading" @click="submitForm"
           >{{ data.current_menu === "login" ? "登录" : "注册" }}
           </el-button
           >
@@ -51,12 +52,13 @@
 </template>
 
 <script>
-
+import {Register} from "@/api/account.js"
 import {reactive, getCurrentInstance, onBeforeMount} from "vue"
 import {validate_email, validate_password, validate_code} from "@/utils/validate.js"
+import  sha1 from 'js-sha1'
 
 //api
-import {GetCode,ErrorHttp} from "@/api/common.js"
+import {GetCode} from "@/api/common.js"
 
 export default {
   props: {},
@@ -64,7 +66,7 @@ export default {
 
     const instance = getCurrentInstance()
     const {proxy} = getCurrentInstance()
-    console.log(proxy,123)
+    console.log(proxy, 123)
 
 
     const handlerGetCode = () => {
@@ -109,7 +111,7 @@ export default {
 
       GetCode(requestData).then(response => {
         const resData = response
-        console.log(123,resData)
+        console.log(123, resData)
         //用户已存在
         if (resData.resCode === 1024) {
           let dataMessage = resData.message.slice(0, 9)
@@ -119,7 +121,7 @@ export default {
           return false
         }
         //激活提交按钮
-        data.submit_button_disabled=false
+        data.submit_button_disabled = false
         //成功就提示
         let dataMessage = resData.message.slice(0, 18)
         ElMessage.success(dataMessage)
@@ -127,32 +129,32 @@ export default {
         countdown(60)
       }).catch(error => {
         proxy.data.code_button_laoding = false
-        proxy.data.code_button_disabled=false
-        proxy.data.code_button_text='获取验证码'
+        proxy.data.code_button_disabled = false
+        proxy.data.code_button_text = "获取验证码"
       })
     }
 
     //倒计时
-    const countdown=(time)=>{
-      let second =time ||60
-      data.code_button_laoding=false //取消加载
-      data.code_button_disabled=true//禁用按钮
-      data.code_button_text=`倒计时${second}秒`
+    const countdown = (time) => {
+      let second = time || 60
+      data.code_button_laoding = false //取消加载
+      data.code_button_disabled = true//禁用按钮
+      data.code_button_text = `倒计时${second}秒`
       //判断是否有计时器，存在则删除
-      if (data.code_button_timer){clearInterval(data.code_button_timer)}
+      if (data.code_button_timer) {clearInterval(data.code_button_timer)}
       //开启计时器
-      data.code_button_timer=setInterval(()=>{
-        second--;
-        data.code_button_text=`倒计时${second}秒` //按钮文本
-        if(second<=0){
-          data.code_button_text='重新获取' //按钮文本
-          data.code_button_disabled=false //启用按钮
+      data.code_button_timer = setInterval(() => {
+        second--
+        data.code_button_text = `倒计时${second}秒` //按钮文本
+        if (second <= 0) {
+          data.code_button_text = "重新获取" //按钮文本
+          data.code_button_disabled = false //启用按钮
           clearInterval(data.code_button_timer)//清理计时器
         }
-      },1000)
+      }, 1000)
     }
 
-    onBeforeMount(()=>{
+    onBeforeMount(() => {
       clearInterval(data.code_button_timer) //删除倒计时
     })
 
@@ -242,25 +244,63 @@ export default {
       code_button_laoding: false,//加载状态
       code_button_text: "获取验证码",//按钮文本
       code_button_timer: null, //定时器
-      submit_button_disabled:true //提交按钮
+      submit_button_disabled: true //提交按钮
     })
 
     const toggleMenu = (type) => {
       data.current_menu = type
     }
     //提交表单
-    const submitForm = ()=>{
-      proxy.$refs.account_form.validate((valid)=>{
-        if (valid){
-          alert('sunmit!')
-        }else{
-          alert('验证不通过！')
+    const submitForm = () => {
+      proxy.$refs.account_form.validate((valid) => {
+        if (valid) {
+          data.current_menu === "login" ? login() : register()
+        } else {
+          alert("验证不通过！")
           return false
         }
       })
     }
 
-    return {data, toggleMenu,  handlerGetCode,submitForm}
+    //注册
+    const register = () => {
+      const requestData = {
+        username: data.form.username,
+        password: sha1(data.form.password),
+        code: data.form.code,
+      }
+      data.submit_button_loading = true
+      Register(requestData).then(response => {
+        ElMessage({
+          message: response.message,
+          type: "success"
+        })
+        console.log('register')
+        reset()//重置元素
+      }).catch(error => {
+        data.submit_button_loading = false
+      })
+    }
+    //reset 重置
+    const reset = () => {
+      //重置表单，resetFields是组件自身重置表单的方法，直接调用
+      proxy.$refs.account_form.resetFields()
+      //切回登录模式
+      data.current_menu = "login"
+      //判断是否存在定时器，有则珊瑚
+      data.code_button_timer && clearInterval(data.code_button_timer)
+      //获取验证码重置文本
+      data.code_button_text = "获取验证码"
+      //获取验证码激活
+      data.code_button_disabled = false
+      //禁用提交按钮
+      data.submit_button_disabled = true
+      //取消提交按钮加载
+      data.submit_button_loading = false
+
+    }
+
+    return {data, toggleMenu, handlerGetCode, submitForm, register, reset}
   },
 }
 </script>
