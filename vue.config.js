@@ -3,12 +3,18 @@
 //   lintOnSave: false,
 //   transpileDependencies: true,
 // });
+const path = require("path")
+function resolve(dir) {
+  return path.join(__dirname, dir)
+}
 const AutoImport = require("unplugin-auto-import/webpack")
 const Components = require("unplugin-vue-components/webpack")
 const {ElementPlusResolver} = require("unplugin-vue-components/resolvers")
 
 
-const path = require("path")
+
+
+
 module.exports = {
   // 基本路径
   publicPath: process.env.NODE_ENV === "production" ? "" : "./",
@@ -19,7 +25,32 @@ module.exports = {
   /** vue3.0内置了webpack所有东西，
    * webpack配置,see https://github.com/vuejs/vue-cli/blob/dev/docs/webpack.md
    **/
-  chainWebpack: (config) => {},
+  chainWebpack: (config) => {
+     // const svgRule = config.module.rule("svg");
+     // svgRule.uses.clear();
+     // svgRule
+     //   .use("svg-sprite-loader")
+     //   .loader('svg-sprite-loader')
+     //   .options({
+     //     symbolId: "icon-[name]",
+     //     include:["./src/components/SvgIcon/icon"]
+     //   });
+    config.module
+      .rule('svg')
+      .exclude.add(resolve('./src/components/SvgIcon/icon'))
+      .end()
+    config.module
+      .rule('icons')
+      .test(/.svg$/)
+      .include.add(resolve('./src/components/SvgIcon/icon'))
+      .end()
+      .use('svg-sprite-loader')
+      .loader('svg-sprite-loader')
+      .options({
+        symbolId: 'icon-[name]',
+      })
+      .end()
+  },
   // 生产环境是否生成 sourceMap 文件
   productionSourceMap: false,
   // css相关配置

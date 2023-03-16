@@ -81,7 +81,7 @@ export default {
 
     //校验密码
     const validate_password_rules = (rule, value, callback) => {
-      let regPassword = validate_password(value)
+      let regPassword = validate_password(value) 
       if (value === "") {
         callback(new Error("请输入密码"))
       } else if (!regPassword) {
