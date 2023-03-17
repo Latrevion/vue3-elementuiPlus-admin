@@ -3,7 +3,7 @@ import {Login} from "@/api/account.js"
 const state = {
   // count: 100,
   // text: "学习后台管理开发",
-  collapse: false
+  collapse: JSON.parse(sessionStorage.getItem('collapse'))  ||false
 }
 
 const getters = {
@@ -23,7 +23,8 @@ const mutations = {
   //   return state.text = payload
   // }
   set_Collapse(state) {
-    state.collapse =!state.collapse
+    state.collapse =!state.collapse;
+    sessionStorage.setItem('collapse',JSON.stringify(state.collapse));
   }
 }
 

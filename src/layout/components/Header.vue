@@ -1,9 +1,10 @@
 <template>
   <div class="header-wrap">
-    <div class="wrap"><!--      左侧-->
+    <div class="wrap">
+      <!--      左侧-->
       <span class="menu-btn" @click='switchAside'>
-      <svg-icon iconName="menuBtn" class-name="icon-menu-svg"></svg-icon>
-    </span>
+        <svg-icon iconName="menuBtn" class-name="icon-menu-svg"></svg-icon>
+      </span>
     </div>
     <!--    右侧-->
     <div class="wrap">
@@ -22,18 +23,18 @@
 
 <script>
 import SvgIcon from "@/components/SvgIcon/Index.vue"
-import {useStore} from 'vuex'
+import {useStore} from "vuex"
 
 export default {
   components: {SvgIcon},
   setup() {
-      const store = useStore();
+    const store = useStore()
 
-     const  switchAside= function (){
-        store.commit('app/set_Collapse')
+    const switchAside = function () {
+      store.commit("app/set_Collapse")
     }
 
-    return { switchAside}
+    return {switchAside}
   }
 }
 </script>
@@ -45,6 +46,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding-left: 15px;
 }
 
 .menu-btn {
