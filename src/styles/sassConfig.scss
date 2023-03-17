@@ -7,3 +7,11 @@
 }
 
 $color_white:white;//定义白色
+
+@mixin transition($attr,$ms){
+  -webkit-transition: $attr $ms;
+  -moz-transition:$attr $ms;
+  -ms-transition: $attr $ms;
+  -o-transition: $attr $ms;
+  transition: $attr $ms;
+}

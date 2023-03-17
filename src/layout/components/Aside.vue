@@ -13,15 +13,18 @@
         <!--        一级菜单 -->
         <template v-if="hasOnlyOneChild(item.children)">
           <el-menu-item :index="item.children[0].path">
-            <svg-icon :icon-name="item.meta &&item.meta.icon" class-name="aside-menu-svg"></svg-icon>
-            {{ item.children[0].meta && item.children[0].meta.title }}
+            <svg-icon :icon-name="item.meta && item.meta.icon" class-name="aside-menu-svg"></svg-icon>
+            <span> {{ item.children[0].meta && item.children[0].meta.title }}</span>
           </el-menu-item>
         </template>
+        <!-- 子级菜单 -->
         <template v-else>
-          <el-sub-menu v-if="item.children &&  item.children.length" :index="item.path">
+          <el-sub-menu v-if="item.children &&  item.children.length> 0" :index="item.path">
             <template #title>
-              <svg-icon :icon-name="item.meta &&item.meta.icon" class-name="aside-menu-svg"></svg-icon>
-              {{ item.meta && item.meta.title }}
+              <el-icon>
+                <svg-icon :icon-name="item.meta && item.meta.icon" class-name="aside-menu-svg"></svg-icon>
+              </el-icon>
+              <span>{{ item.meta && item.meta.title }}</span>
             </template>
             <template v-for="child in item.children" :key="child.path">
               <el-menu-item v-if="!child.hidden" :index="child.path">
@@ -36,15 +39,15 @@
 </template>
 
 <script>
-import {useRouter,useRoute} from "vue-router"
-import {computed,reactive,toRefs} from "vue"
-import {useStore} from 'vuex'
+import {useRouter, useRoute} from "vue-router"
+import {computed, reactive, toRefs} from "vue"
+import {useStore} from "vuex"
 
 export default {
   components: {},
   setup() {
     const store = useStore()
-    const {path } = useRoute()
+    const {path} = useRoute()
 
     const {options} = useRouter()
     const routers = options.routes
@@ -69,23 +72,25 @@ export default {
     }
 
     //获取当前路由
-    const currentPath = computed(()=>path)
+    const currentPath = computed(() => path)
 
     const data = reactive({
-      logo:require('@/assets/logo.png'),
-      collapse:computed(()=>store.state.app.collapse)
+      // logo:require('@/assets/logo.png'),
+      logo: computed(() => {return store.state.app.collapse ? require("@/assets/avatar.png") : require("@/assets/logo.png")}),
+      collapse: computed(() => store.state.app.collapse)
     })
 
-    return {routers, hasOnlyOneChild,currentPath,...toRefs(data)}
+    return {routers, hasOnlyOneChild, currentPath, ...toRefs(data)}
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.logo{
+.logo {
   padding: 20px 0;
   border-bottom: 1px solid #2d4153;
-  img{
+
+  img {
     margin: auto;
   }
 }
