@@ -1,8 +1,9 @@
 import {Login} from "@/api/account.js"
 
 const state = {
-  count: 100,
-  text: "学习后台管理开发"
+  // count: 100,
+  // text: "学习后台管理开发",
+  collapse: false
 }
 
 const getters = {
@@ -15,31 +16,25 @@ const getters = {
 }
 
 const mutations = {
-  set_Count(state) {
-    return state.count = 88
-  },
-  set_Text(state, payload) {
-    return state.text = payload
+  // set_Count(state) {
+  //   return state.count = 88
+  // },
+  // set_Text(state, payload) {
+  //   return state.text = payload
+  // }
+  set_Collapse(state) {
+    state.collapse =!state.collapse
   }
-
 }
 
 const actions = {
-  // update_count(context) {
-  //   console.log(context)
-  //   context.commit('set_Count')
-  // }
-  // ,
-  // update_text({commit,state,getters,dispatch},payload){
-  //   commit('set_Text',payload)
-  // },
-  loginAction(context,requestData){
-    return new Promise( ( resolve, reject)=>{
-          Login(requestData).then( ( response)=>{
-              resolve(response)
-          }, (error )=>{
-              reject(error)
-          })
+  loginAction(context, requestData) {
+    return new Promise((resolve, reject) => {
+      Login(requestData).then((response) => {
+        resolve(response)
+      }, (error) => {
+        reject(error)
+      })
     })
   }
 }

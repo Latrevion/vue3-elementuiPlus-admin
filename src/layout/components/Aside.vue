@@ -1,6 +1,7 @@
 <template>
   <h1 class="logo"><img :src="logo" alt="logo"></h1>
   <el-menu
+      :collapse="collapse"
       :default-active="currentPath"
       class="el-menu-vertical-demo"
       background-color="#344a5f"
@@ -36,12 +37,13 @@
 
 <script>
 import {useRouter,useRoute} from "vue-router"
-// import SvgIcon from "@/components/SvgIcon/Index.vue"
 import {computed,reactive,toRefs} from "vue"
+import {useStore} from 'vuex'
 
 export default {
   components: {},
   setup() {
+    const store = useStore()
     const {path } = useRoute()
 
     const {options} = useRouter()
@@ -70,7 +72,8 @@ export default {
     const currentPath = computed(()=>path)
 
     const data = reactive({
-      logo:require('@/assets/logo.png')
+      logo:require('@/assets/logo.png'),
+      collapse:computed(()=>store.state.app.collapse)
     })
 
     return {routers, hasOnlyOneChild,currentPath,...toRefs(data)}

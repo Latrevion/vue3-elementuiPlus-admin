@@ -1,7 +1,7 @@
 <template>
   <div class="header-wrap">
     <div class="wrap"><!--      左侧-->
-      <span class="menu-btn">
+      <span class="menu-btn" @click='switchAside'>
       <svg-icon iconName="menuBtn" class-name="icon-menu-svg"></svg-icon>
     </span>
     </div>
@@ -22,13 +22,18 @@
 
 <script>
 import SvgIcon from "@/components/SvgIcon/Index.vue"
+import {useStore} from 'vuex'
 
 export default {
   components: {SvgIcon},
   setup() {
+      const store = useStore();
 
+     const  switchAside= function (){
+        store.commit('app/set_Collapse')
+    }
 
-    return {}
+    return { switchAside}
   }
 }
 </script>
@@ -75,7 +80,7 @@ export default {
   cursor: pointer;
 }
 
-.icon-logout{
+.icon-logout {
   font-size: 24px;
 }
 </style>
