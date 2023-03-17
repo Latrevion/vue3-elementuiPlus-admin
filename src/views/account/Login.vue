@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import {reactive, getCurrentInstance,  onBeforeUnmount} from "vue"
+import {reactive, getCurrentInstance, onBeforeUnmount} from "vue"
 //加密算法
 import sha1 from "js-sha1"
 //校验类
@@ -61,9 +61,14 @@ import {validate_email, validate_password, validate_code} from "@/utils/validate
 import {GetCode} from "@/api/common.js"
 import {Register, Login} from "@/api/account.js"
 
+import {useStore} from "vuex"
+
+
 export default {
   props: {},
   setup(props, context) {
+    const store = useStore()
+
     //获取实例上下文
     const {proxy} = getCurrentInstance()
 
@@ -81,7 +86,7 @@ export default {
 
     //校验密码
     const validate_password_rules = (rule, value, callback) => {
-      let regPassword = validate_password(value) 
+      let regPassword = validate_password(value)
       if (value === "") {
         callback(new Error("请输入密码"))
       } else if (!regPassword) {
@@ -307,21 +312,33 @@ export default {
         password: sha1(data.form.password),
         code: data.form.code,
       }
-      console.log("denglu")
       data.submit_button_loading = true
-      Login(requestData).then(response => {
+
+      store.dispatch("app/loginAction", requestData).then(response => {
         ElMessage({
           message: response.message,
           type: "success"
         })
         reset()
       }).catch(error => {
+        console.log("error", error)
         data.submit_button_loading = false
       })
+
+      // data.submit_button_loading = true
+      // Login(requestData).then(response => {
+      //   ElMessage({
+      //     message: response.message,
+      //     type: "success"
+      //   })
+      //   reset()
+      // }).catch(error => {
+      //   data.submit_button_loading = false
+      // })
     }
 
 
-  // 组件销毁之前 - 生命周期
+    // 组件销毁之前 - 生命周期
     onBeforeUnmount(() => {
       clearInterval(data.code_button_timer) //删除倒计时
     })

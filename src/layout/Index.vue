@@ -39,7 +39,10 @@ export default {
 }
 
 #layout-header {
-  background-color: #77bc99;
+  position: relative;
+  z-index: 10;
+  background-color: $color_white;
+  @include webkit(box-shadow,0 0 10px 0 rgba(0,0,0,.5));
 }
 
 #layout-main {
