@@ -1,6 +1,6 @@
 <template>
   <div>
-
+    detailed.vue
   </div>
 </template>
 
