@@ -3,7 +3,7 @@ import {setToken, setUsername, getToken, getUsername,removeToken,removeUsername}
 
 
 const state = {
-  // count: 100,
+  count: 100,
   // text: "学习后台管理开发",
   collapse: JSON.parse(sessionStorage.getItem("collapse")) || false,
   token: "" || getToken(),

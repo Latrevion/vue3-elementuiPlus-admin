@@ -1,19 +1,100 @@
 <template>
-  <div>
-
+  <el-row>
+    <el-col :span="18">
+      <el-form :inline="true" label-width="80px">
+        <el-form-item label="类别:">
+          <el-select v-model="data.category" placeholder="请选择" class="width-160">
+            <el-option
+                v-for="item in data.category_options"
+                :key="item.value"
+                :value="item.value"
+                :label="item.label"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="关键字:">
+          <el-select placeholder="请选择" class="width-100"></el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-input placeholder="请输入关键字" class="width-180"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="danger">搜索</el-button>
+        </el-form-item>
+      </el-form>
+    </el-col>
+    <!--    <el-col :span="6">-->
+    <!--      <el-button type="danger" class="pull-right">add</el-button>-->
+    <!--    </el-col>-->
+  </el-row>
+  <el-table
+      ref="ElTable"
+      :data="data.tableData"
+      style="width: 100%"
+      border
+      @selection-change="handleSelectionChange"
+  >
+    <el-table-column type="selection" width="40"/>
+    <el-table-column property="name" label="标题" width="500"></el-table-column>
+    <el-table-column property="address" label="类别" />
+    <el-table-column property="date" label="日期"/>
+    <el-table-column property="address" label="操作" width="200">
+      <template #default="scope">
+        <el-button type="danger" size="mini">编辑</el-button>
+        <el-button size="mini">删除</el-button>
+      </template>
+    </el-table-column>
+  </el-table>
+  <div style="margin-top: 20px">
+    <el-button @click="toggleSelection([tableData[1], tableData[2]])"
+    >Toggle selection status of second and third rows
+    </el-button
+    >
+    <el-button @click="toggleSelection()">Clear selection</el-button>
   </div>
 </template>
 
 <script>
+import {getCurrentInstance, reactive} from "vue"
+
 export default {
-  setup() {
+  setup(props, context) {
+    // const {proxy} =getCurrentInstance()
+    const data = reactive({
+      category: 0,
+      category_options: [
+        {label: "人工智能", value: 0},
+        {label: "技术", value: 1},
+      ],
+      tableData:[
+        {
+          name:'王晓虎',address:'上海市普多区金沙江路1518弄',date:'2020-06-05 12:00:00'
+        },
+        {
+          name:'王小虎',address:'上海市普多区金沙江路120弄',date:'2020-06-05 13:00:00'
+        }
+      ]
+    })
 
-
-    return {}
+    //多选事件
+    const handlerSelectionChange=()=>{
+      console.log(handlerSelectionChange)
+    }
+    return {data,handlerSelectionChange}
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.width-160 {
+  width: 160px;
+}
 
+.width-100 {
+  width: 160px;
+}
+
+.width-180 {
+  width: 180px;
+}
 </style>
