@@ -10,12 +10,25 @@
     <div class="wrap">
       <div class="user-info">
         <div class="face-info">
-          <img src="../../assets/avatar.png" alt="logo-min-png">
-          <span class="name">1234567890@qq.com</span>
+          <img src="../../assets/avatar.png" :alt="username">
+          <span class="name">{{ username }}</span>
         </div>
+        <el-popconfirm
+            width="250px"
+            confirm-button-text="确认"
+            confirm-button-type='danger'
+            cancel-button-text="取消"
+            :icon="InfoFilled"
+            icon-color="#d07a61"
+            title="确认退出管理后台？"
+            @confirm="handlerLogout"
+            @cancel="cancelEvent">
+          <template #reference>
         <span class='layout'>
         <svg-icon icon-name="logout" class-name="icon-logout"></svg-icon>
         </span>
+          </template>
+        </el-popconfirm>
       </div>
     </div>
   </div>
@@ -24,17 +37,46 @@
 <script>
 import SvgIcon from "@/components/SvgIcon/Index.vue"
 import {useStore} from "vuex"
+import {ref, getCurrentInstance} from "vue"
+import {useRouter} from "vue-router"
 
 export default {
   components: {SvgIcon},
   setup() {
     const store = useStore()
+    //获取实例上下文
+    const {proxy} = getCurrentInstance()
 
+    //引入router
+    const {replace} = useRouter()
+
+    //菜单切换按钮
     const switchAside = function () {
       store.commit("app/set_Collapse")
     }
 
-    return {switchAside}
+    //用户名
+    const username = ref(store.state.app.username)
+
+    //退出
+    const handlerLogout = () => {
+      store.dispatch("app/logoutAction")
+          .then(response => {
+            ElMessage({
+              message: response.message.slice(0,5),
+              type: "success"
+            })
+            replace({
+              name: "Login"
+            })
+          }).catch(err => console.log(err))
+    }
+
+    const cancelEvent = ( )=>{
+        console.log('取消退出')
+    }
+
+    return {switchAside, username, handlerLogout,cancelEvent}
   }
 }
 </script>
@@ -46,10 +88,10 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-left: 15px;
 }
 
 .menu-btn {
+  padding-left: 15px;
   cursor: pointer;
 }
 

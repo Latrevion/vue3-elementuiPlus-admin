@@ -7,6 +7,8 @@ import * as ElementPlusIconsVue from "@element-plus/icons-vue"
 import SvgIcon from '@/components/SvgIcon/Index.vue'
 //批量引入svg文件
 import '@/components/SvgIcon/svg'
+//路由守卫
+import './router/permit.js'
 
 const app = createApp(App)
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {

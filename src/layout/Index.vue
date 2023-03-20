@@ -1,6 +1,6 @@
 <template>
   <el-container id="layout-container">
-    <el-aside id="layout-aside" :width="collapse===true?'60px':'250px'">
+    <el-aside id="layout-aside" :width="collapse===true?'64px':'250px'">
       <LayoutAside></LayoutAside>
     </el-aside>
     <el-container>
@@ -41,6 +41,8 @@ export default {
 #layout-aside {
   background: #344a5f;
   @include transition(all,250ms);
+  height: 100vh;
+  //min-width: 64px;
 }
 
 #layout-header {

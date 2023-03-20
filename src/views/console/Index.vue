@@ -11,15 +11,6 @@ export default {
   components: {},
   setup(props) {
     const store = useStore()
-    console.log(store.state.app.count)
-    console.log("计算后的结果", store.getters["app/getUpdateCount"])
-    console.log("计算后的结果", store.getters["app/getUpdateText"])
-    console.log("---------------------")
-    store.commit("app/set_Count")
-    console.log(store.state.app.count)
-    store.commit('app/set_Text','learning English')
-    console.log(store.state.app.text)
-    console.log("计算后的结果", store.getters["app/getUpdateText"])
     return {}
   }
 }

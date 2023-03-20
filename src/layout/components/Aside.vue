@@ -1,6 +1,7 @@
 <template>
   <h1 class="logo"><img :src="logo" alt="logo"></h1>
   <el-menu
+      unique-opened="true"
       :collapse="collapse"
       :default-active="currentPath"
       class="el-menu-vertical-demo"
@@ -86,6 +87,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
+
 .logo {
   padding: 20px 0;
   border-bottom: 1px solid #2d4153;

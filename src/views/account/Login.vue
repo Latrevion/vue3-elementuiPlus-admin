@@ -63,6 +63,7 @@ import {Register, Login} from "@/api/account.js"
 
 import {useStore} from "vuex"
 
+import {useRouter} from 'vue-router'
 
 export default {
   props: {},
@@ -71,6 +72,9 @@ export default {
 
     //获取实例上下文
     const {proxy} = getCurrentInstance()
+
+    //router
+    const router = useRouter()
 
     //校验用户名
     const validate_name_rules = (rule, value, callback) => {
@@ -132,8 +136,8 @@ export default {
 
     const data = reactive({
       form: {
-        username: "", //用户名
-        password: "", //密码
+        username: "1234567890@qq.com", //用户名
+        password: "qwer123", //密码
         passwords: "",//确认密码
         code: "",    //验证码
       },
@@ -316,9 +320,14 @@ export default {
 
       store.dispatch("app/loginAction", requestData).then(response => {
         ElMessage({
-          message: response.message,
+          message: response.message.slice(0, 5),
           type: "success"
         })
+        //token，username 写入cookies
+        store.commit('app/set_Token',response.data.token)
+        store.commit('app/set_Username',response.data.username)
+        //路由跳转
+        router.push({path:'/console'})
         reset()
       }).catch(error => {
         console.log("error", error)
