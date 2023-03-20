@@ -8,7 +8,19 @@
         :props="data.defaultProps"
         @node-click="handlerNodeClick"
         default-expand-all
-      ></el-tree>
+        :expand-on-click-node="false"
+      >
+        <template #default="{node,data}">
+          <div class="custom-tree-node">
+            <span>{{node.label}}</span>
+            <span>
+              <el-button type="danger" round>添加子级</el-button>
+              <el-button type="success" round>编辑</el-button>
+              <el-button round>删除</el-button>
+            </span>
+          </div>
+        </template>
+      </el-tree>
     </el-col>
     <el-col :span="18">输入框</el-col>
   </el-row>
@@ -56,5 +68,21 @@ export default {
   border: none;
   border-top: 1px solid #e9e9e9;
   margin: 30px 0;
+}
+
+.custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 8px;
+}
+:deep(.el-tree-node__content) {
+  height: auto;
+  button {
+    padding: 6px 12px;
+    margin: 8px 3px;
+    font-size: 12px;
+  }
 }
 </style>
