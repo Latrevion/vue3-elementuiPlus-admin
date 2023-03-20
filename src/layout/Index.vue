@@ -42,18 +42,17 @@ export default {
   background: #344a5f;
   @include transition(all,250ms);
   height: 100vh;
-  //min-width: 64px;
 }
 
 #layout-header {
   position: relative;
   z-index: 10;
   background-color: $color_white;
-  @include webkit(box-shadow,0 0 10px 0 rgba(0,0,0,.5));
+  @include webkit(box-shadow,0 0 20px 0 rgba(0,0,0,.1));
 }
 
 #layout-main {
-  background: #bc77a1;
+  background: #f7f7f7;
 }
 
 
