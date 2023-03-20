@@ -36,7 +36,7 @@
   >
     <el-table-column type="selection" width="40"/>
     <el-table-column property="name" label="标题" width="500"></el-table-column>
-    <el-table-column property="address" label="类别" />
+    <el-table-column property="address" label="类别"/>
     <el-table-column property="date" label="日期"/>
     <el-table-column property="address" label="操作" width="200">
       <template #default="scope">
@@ -45,13 +45,24 @@
       </template>
     </el-table-column>
   </el-table>
-  <div style="margin-top: 20px">
-    <el-button @click="toggleSelection([tableData[1], tableData[2]])"
-    >Toggle selection status of second and third rows
-    </el-button
-    >
-    <el-button @click="toggleSelection()">Clear selection</el-button>
-  </div>
+  <el-row class="margin-top-30">
+    <el-col :span="6">
+      <el-button>批量删除</el-button>
+    </el-col>
+    <el-col :span="18">
+      <el-pagination
+          class="pull-right"
+          small
+          background
+          @size-change="handlerSizeChange"
+          @current-change="handlerCurrentChange"
+          :current-page="data.curren_page"
+          :page-size="10"
+          :page-sizes="[10,20,50,100]"
+          layout="total,sizes,prev, pager, next,jumper" :total="100"
+      />
+    </el-col>
+  </el-row>
 </template>
 
 <script>
@@ -66,21 +77,26 @@ export default {
         {label: "人工智能", value: 0},
         {label: "技术", value: 1},
       ],
-      tableData:[
+      tableData: [
         {
-          name:'王晓虎',address:'上海市普多区金沙江路1518弄',date:'2020-06-05 12:00:00'
+          name: "王晓虎", address: "上海市普多区金沙江路1518弄", date: "2020-06-05 12:00:00"
         },
         {
-          name:'王小虎',address:'上海市普多区金沙江路120弄',date:'2020-06-05 13:00:00'
+          name: "王小虎", address: "上海市普多区金沙江路120弄", date: "2020-06-05 13:00:00"
         }
-      ]
+      ],
+      currentPage: 1
     })
 
     //多选事件
-    const handlerSelectionChange=()=>{
+    const handlerSelectionChange = () => {
       console.log(handlerSelectionChange)
     }
-    return {data,handlerSelectionChange}
+    //分页器的页码方法
+    const handlerSizeChange=(val)=>{}
+    const handlerCurrentChange=(val)=>{}
+
+    return {data, handlerSelectionChange,handlerSizeChange,handlerCurrentChange,}
   }
 }
 </script>
