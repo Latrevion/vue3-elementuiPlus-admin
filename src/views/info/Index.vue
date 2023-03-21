@@ -23,9 +23,11 @@
         </el-form-item>
       </el-form>
     </el-col>
-    <!--    <el-col :span="6">-->
-    <!--      <el-button type="danger" class="pull-right">add</el-button>-->
-    <!--    </el-col>-->
+    <el-col :span="6">
+      <router-link to="/newsDetailed" class="pull-right">
+        <el-button type="danger">新增</el-button>
+      </router-link>
+    </el-col>
   </el-row>
   <el-table
       ref="ElTable"
@@ -40,7 +42,7 @@
     <el-table-column property="date" label="日期"/>
     <el-table-column property="address" label="操作" width="200">
       <template #default="scope">
-        <el-button type="danger" size="mini">编辑</el-button>
+        <el-button type="danger" size="mini" @click="handlerDetailed">编辑</el-button>
         <el-button size="mini">删除</el-button>
       </template>
     </el-table-column>
@@ -67,10 +69,12 @@
 
 <script>
 import {getCurrentInstance, reactive} from "vue"
+import {useRouter} from 'vue-router'
 
 export default {
   setup(props, context) {
     // const {proxy} =getCurrentInstance()
+    const router = useRouter()
     const data = reactive({
       category: 0,
       category_options: [
@@ -93,10 +97,17 @@ export default {
       console.log(handlerSelectionChange)
     }
     //分页器的页码方法
-    const handlerSizeChange=(val)=>{}
-    const handlerCurrentChange=(val)=>{}
+    const handlerSizeChange = (val) => {}
+    const handlerCurrentChange = (val) => {}
 
-    return {data, handlerSelectionChange,handlerSizeChange,handlerCurrentChange,}
+    //详情页编辑
+    const handlerDetailed = ( )=>{
+        router.push({
+          path:'/newsDetailed'
+        })
+    }
+
+    return {data, handlerSelectionChange, handlerSizeChange, handlerCurrentChange,handlerDetailed}
   }
 }
 </script>

@@ -1,15 +1,59 @@
 <template>
-  <div>
-    detailed.vue
-  </div>
+  <el-form label-width="150px">
+    <el-form-item label="信息类别：">
+      <el-select v-model="data.category">
+        <el-option
+            v-for="item in data.category_opacity"
+            :key="item.value"
+            :value="item.value"
+            :label="item.label"
+        >
+        </el-option>
+      </el-select>
+    </el-form-item>
+    <el-form-item label="信息标题：">
+      <el-input v-model="data.title"></el-input>
+    </el-form-item>
+    <el-form-item label="略缩图：">
+      <el-upload
+      class="avatar-uploader"
+      action="https://jsonplaceholder.typicode.com/posts/"
+      :show-file-list="false"
+      :on-success="handlerAvatarSuccess"
+      :before-upload="beforeAvatarUpload"
+      >
+        <img v-if="data.imageUrl" :src="data.imageUrl" class="avatar">
+        <span v-else>+</span>
+      </el-upload>
+    </el-form-item>
+    <el-form-item label="发布日期：">
+    </el-form-item>
+    <el-form-item label="内容：">
+    </el-form-item>
+    <el-form-item>
+      <el-button type="danger">确定
+      </el-button>
+    </el-form-item>
+  </el-form>
 </template>
 
 <script>
+import {reactive} from "vue"
+
 export default {
-  setup() {
+  setup(props) {
+    const data = reactive({
+      imageUrl: "",
+      category: "",
+      title: "",
+      data: "",
+      category_opacity: [
+        {label: "人工智能", value: 0},
+        {label: "技术", value: 1}
+      ]
+    })
 
-
-    return {}
+    return {data}
   }
 }
 </script>
