@@ -27,6 +27,7 @@
       </el-upload>
     </el-form-item>
     <el-form-item label="发布日期：">
+      <el-date-picker v-model="data.date" type="datetime" placeholder="选择日期时间"></el-date-picker>
     </el-form-item>
     <el-form-item label="内容：">
     </el-form-item>
