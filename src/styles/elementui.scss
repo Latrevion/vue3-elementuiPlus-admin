@@ -32,3 +32,8 @@
     justify-content: center;
     font-size:30px;
 }
+
+//DateTimePicker
+.el-picker__popper{
+    z-index: 10002 !important;
+}
