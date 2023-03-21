@@ -16,11 +16,11 @@
     </el-form-item>
     <el-form-item label="略缩图：">
       <el-upload
-      class="avatar-uploader"
-      action="https://jsonplaceholder.typicode.com/posts/"
-      :show-file-list="false"
-      :on-success="handlerAvatarSuccess"
-      :before-upload="beforeAvatarUpload"
+          class="avatar-uploader"
+          action="https://jsonplaceholder.typicode.com/posts/"
+          :show-file-list="false"
+          :on-success="handlerAvatarSuccess"
+          :before-upload="beforeAvatarUpload"
       >
         <img v-if="data.imageUrl" :src="data.imageUrl" class="avatar">
         <span v-else>+</span>
@@ -30,6 +30,7 @@
       <el-date-picker v-model="data.date" type="datetime" placeholder="选择日期时间"></el-date-picker>
     </el-form-item>
     <el-form-item label="内容：">
+      <div ref="editor"></div>
     </el-form-item>
     <el-form-item>
       <el-button type="danger">确定
@@ -39,7 +40,8 @@
 </template>
 
 <script>
-import {reactive} from "vue"
+import {reactive, ref, onMounted} from "vue"
+import WangEditor from "wangeditor"
 
 export default {
   setup(props) {
@@ -54,7 +56,19 @@ export default {
       ]
     })
 
-    return {data}
+    const editor = ref()
+    let editor_instance=null
+    onMounted( ( )=>{
+      editor_instance = new WangEditor(editor.value)
+      Object.assign(editor_instance.config,{
+        onchange(){
+          console.log('change')
+        }
+      })
+      editor_instance.create()
+    })
+
+    return {data,editor}
   }
 }
 </script>
