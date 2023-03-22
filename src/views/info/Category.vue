@@ -1,38 +1,42 @@
 <template>
-  <el-button type="danger">添加一级分类</el-button>
+  <el-button type="danger" @click="handlerCategory('first_category_add')">添加父级分类</el-button>
   <hr class="spacing-hr">
   <el-row :gutter="20">
-    <el-col :span="6">
+    <el-col :span="7">
       <el-tree
-        :data="data.tree_data"
-        :props="data.defaultProps"
-        @node-click="handlerNodeClick"
-        default-expand-all
-        :expand-on-click-node="false"
+          :data="data.tree_data"
+          :props="data.defaultProps"
+          @node-click="handlerNodeClick"
+          default-expand-all
+          :expand-on-click-node="false"
       >
         <template #default="{node,data}">
           <div class="custom-tree-node">
-            <span>{{node.label}}</span>
+            <span>{{ node.label }}</span>
             <span>
-              <el-button type="danger" round>添加子级</el-button>
-              <el-button type="success" round>编辑</el-button>
-              <el-button round>删除</el-button>
+              <el-button type="danger" round size="small" class="button-mini"
+                         @click="handlerCategory('child_category_add')">添加子级</el-button>
+              <el-button type="success" round size="small" class="button-mini"
+                         @click="handlerCategory(node.level===1?'parent_category_edit':'child_category_edit',node)">编辑分类</el-button>
+              <el-button round size="small" class="button-mini">删除分类</el-button>
             </span>
           </div>
         </template>
       </el-tree>
     </el-col>
-    <el-col :span="18">
-      <h4 class="column">分类名称</h4>
-      <el-form label-width="100px">
-        <el-form-item label="父级分类：">
-          <el-input style="width:20%"></el-input>
+    <el-col :span="17">
+      <h4 class="column">{{ config[config.type].title }}</h4>
+      <el-form label-width="120px">
+        <el-form-item label="父级分类名称：">
+          <el-input v-model="data.parent_category" :disabled="config[config.type].parent_disabled"
+                    style="width:20%"></el-input>
         </el-form-item>
-        <el-form-item label="子级分类：">
-          <el-input style="width:20%"></el-input>
+        <el-form-item label="子级分类名称：" v-if="config[config.type].sub_show">
+          <el-input v-model="data.sub_category" :disabled="config[config.type].sub_disabled"
+                    style="width:20%"></el-input>
         </el-form-item>
         <el-form-item label="">
-            <el-button type="danger">确定</el-button>
+          <el-button type="danger">确定</el-button>
         </el-form-item>
       </el-form>
     </el-col>
@@ -44,34 +48,102 @@ import {reactive} from "vue"
 
 export default {
   setup(props) {
-    const data =reactive({
-      tree_data:[
+    const data = reactive({
+      tree_data: [
         {
-          text:'一级 1'
+          text: "一级 1"
           ,
-          children:[
+          children: [
             {
-              text:'二级 1-1',
-              children:[
+              text: "二级 1-1",
+              children: [
                 {
-                  text:'三级 1-1-1'
+                  text: "三级 1-1-1"
                 }
               ]
             }
           ]
         }
       ],
-      defaultProps:{
-        children:'children',
-        label:'text'
-      }
+      defaultProps: {
+        children: "children",
+        label: "text",
+      },
+      parent_category: "父级分类文本演示",//父级分类名称
+      sub_category: "子级分类文本演示",//子级分类名称
+      button_loading: false,//加载确定按钮
     })
 
-    const handlerNodeClick= ( )=>{
+    const config = reactive({
+      type: "default",//记录操作类型
+      default: {
+        title: "分类标题",//分类标题
+        parent_disabled: true,//父级分类输入框禁用/启用
+        sub_disabled: true,//子级分类输入框禁用/启用
+        sub_show: true, //子级分类显示/隐藏
+      },
+      first_category_add: {
+        title: "添加父级分类",//分类标题
+        parent_disabled: false,//父级分类输入框禁用/启用
+        sub_disabled: true,//子级分类输入框禁用/启用
+        sub_show: false, //子级分类显示/隐藏
+        clear:['parent_category','sub_category']
+      },
+      child_category_add: {
+        title: "添加子级分类",//分类标题
+        parent_disabled: true,//父级分类输入框禁用/启用
+        sub_disabled: false,//子级分类输入框禁用/启用
+        sub_show: true, //子级分类显示/隐藏
+        clear:['sub_category'],
+        create:['parent_category']
+      },
+      parent_category_edit: {
+        title: "编辑父级分类",//分类标题
+        parent_disabled: false,//父级分类输入框禁用/启用
+        sub_disabled: true,//子级分类输入框禁用/启用
+        sub_show: false, //子级分类显示/隐藏
+      },
+      child_category_edit: {
+        title: "编辑子级分类",//分类标题
+        parent_disabled: true,//父级分类输入框禁用/启用
+        sub_disabled: false,//子级分类输入框禁用/启用
+        sub_show: true, //子级分类显示/隐藏
 
+      },
+    })
+
+    const handlerNodeClick = () => {
+      console.log("handlerNodeClick")
     }
 
-    return {data,handlerNodeClick}
+    const handlerCategory = (type, node_data) => {
+      config.type = type
+      console.log(node_data)
+      //删除还原内容
+      handlerInputValue()
+    }
+
+    const handlerInputValue=()=>{
+      //获取还原数据对象
+      const createObject =config[config.type].create;
+      //执行还原动作
+      if (createObject && createObject.length>0){
+        createObject.forEach(item=>
+        data[item] ='create11'
+        )
+      }
+
+      //获取删除数据的对象
+        const clearObject =config[config.type].clear
+      //执行删除动作
+      if(clearObject && clearObject.length>0){
+        clearObject.forEach(item=>{
+          data[item]=''
+        })
+      }
+    }
+
+    return {data, handlerNodeClick, config, handlerCategory,handlerInputValue}
   }
 }
 </script>
@@ -90,8 +162,10 @@ export default {
   justify-content: space-between;
   padding-right: 8px;
 }
+
 :deep(.el-tree-node__content) {
   height: auto;
+
   button {
     padding: 6px 12px;
     margin: 8px 3px;
@@ -99,7 +173,7 @@ export default {
   }
 }
 
-.column{
+.column {
   height: 44px;
   padding: 0 20px;
   margin-bottom: 30px;
