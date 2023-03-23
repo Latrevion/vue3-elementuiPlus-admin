@@ -2,8 +2,9 @@
   <el-button type="danger" @click="handlerCategory('first_category_add')">添加父级分类</el-button>
   <hr class="spacing-hr">
   <el-row :gutter="20">
-    <el-col :span="7">
+    <el-col :span="12">
       <el-tree
+          ref="categoryTree"
           :data="data.tree_data"
           :props="data.defaultProps"
           @node-click="handlerNodeClick"
@@ -15,7 +16,7 @@
             <span>{{ node.label }}</span>
             <span>
               <el-button type="danger" round size="small" class="button-mini"
-                         @click="handlerCategory('child_category_add')">添加子级</el-button>
+                         @click="handlerCategory('child_category_add',node)">添加子级</el-button>
               <el-button type="success" round size="small" class="button-mini"
                          @click="handlerCategory(node.level===1?'parent_category_edit':'child_category_edit',node)">编辑分类</el-button>
               <el-button round size="small" class="button-mini">删除分类</el-button>
@@ -24,7 +25,7 @@
         </template>
       </el-tree>
     </el-col>
-    <el-col :span="17">
+    <el-col :span="12">
       <h4 class="column">{{ config[config.type].title }}</h4>
       <el-form label-width="120px">
         <el-form-item label="父级分类名称：">
@@ -44,22 +45,24 @@
 </template>
 
 <script>
-import {reactive, getCurrentInstance, onBeforeMount} from "vue"
-import {firstCategoryAdd, GetGategory} from "@/api/info.js"
+import {reactive, getCurrentInstance, onBeforeMount,ref} from "vue"
+import {firstCategoryAdd, GeCategory, ChildCategoryAdd} from "@/api/info.js"
+
 
 export default {
   setup(props) {
     const {proxy} = getCurrentInstance()
-
+    const categoryTree =ref(null)
     const data = reactive({
       tree_data: [],
       defaultProps: {
         children: "children",
         label: "category_name",
       },
-      parent_category: "父级分类文本演示",//父级分类名称
       sub_category: "子级分类文本演示",//子级分类名称
       button_loading: false,//加载确定按钮
+      parent_category: "",//父级分类名称
+      parent_category_data: null,
     })
 
     const config = reactive({
@@ -105,6 +108,7 @@ export default {
     }
 
     const handlerCategory = (type, node_data) => {
+      data.parent_category_data = node_data || null
       config.type = type
       console.log(node_data)
       //删除还原内容
@@ -117,7 +121,7 @@ export default {
       //执行还原动作
       if (createObject && createObject.length > 0) {
         createObject.forEach(item =>
-            data[item] = "create11"
+            data[item] = data[`${item}_data`].data.category_name
         )
       }
 
@@ -136,6 +140,10 @@ export default {
       if (config.type === "first_category_add") {
         handlerFirstCategoryAdd()
       }
+      if (config.type === "child_category_add") {
+        handlerChildCategoryAdd()
+      }
+
     }
     //添加父级分类
     const handlerFirstCategoryAdd = () => {
@@ -154,6 +162,8 @@ export default {
             response.message = response.message.slice(0, 5)
             ElMessage.success(response.message)
             data.parent_category = ""//父级分类删除文本
+            //更新树形菜单数据
+            handlerGetCategory();
           }
       ).catch(error => {
             data.button_loading = false
@@ -162,19 +172,48 @@ export default {
       )
     }
 
-    const handlerGetCategory= ( )=>{
-        GetGategory().then(response=>{
-          data.tree_data= response.data || []
-        }).catch( error=>{
-          console.log(error,'handlerGetCategory is error')
-        })
+    //添加子级分类
+    const handlerChildCategoryAdd = () => {
+      //子级分类为空时提示
+      if (!data.sub_category) {
+        ElMessage.error("子级分类不能为空！")
+        return false
+      }
+      //按钮加载状态
+      data.button_loading = true
+      //请求接口
+      ChildCategoryAdd({
+        categoryName: data.sub_category, //分类名称参数
+        parentId: data.parent_category_data.data.id //父级分类id参数
+      }).then(response => {
+        //删除加载状态
+        data.button_loading = false
+        //成功提示
+        ElMessage.success(response.message.slice(0,5))
+        //删除子级分类文本
+        data.sub_category = ""
+        //追加子级数据
+        categoryTree.value.append(response.data,data.parent_category_data)
+      }).catch(error => {
+        data.button_loading = false
+        console.log(error, "ChildCategoryAdd error")
+      })
+
     }
 
-    onBeforeMount( ( )=>{
-        handlerGetCategory()
+    const handlerGetCategory = () => {
+      GeCategory().then(response => {
+        data.tree_data = response.data || []
+      }).catch(error => {
+        console.log(error, "handlerGetCategory is error")
+      })
+    }
+
+    onBeforeMount(() => {
+      handlerGetCategory()
     })
 
-    return {data, handlerNodeClick, config, handlerCategory, handlerInputValue, handlerSubmit, handlerFirstCategoryAdd}
+    return {data, handlerNodeClick, config, handlerCategory, handlerInputValue, handlerSubmit, handlerFirstCategoryAdd,categoryTree}
   }
 }
 </script>
