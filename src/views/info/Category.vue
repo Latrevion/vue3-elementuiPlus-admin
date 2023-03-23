@@ -28,15 +28,15 @@
       <h4 class="column">{{ config[config.type].title }}</h4>
       <el-form label-width="120px">
         <el-form-item label="父级分类名称：">
-          <el-input v-model="data.parent_category" :disabled="config[config.type].parent_disabled"
+          <el-input v-model.trim="data.parent_category" :disabled="config[config.type].parent_disabled"
                     style="width:20%"></el-input>
         </el-form-item>
         <el-form-item label="子级分类名称：" v-if="config[config.type].sub_show">
-          <el-input v-model="data.sub_category" :disabled="config[config.type].sub_disabled"
+          <el-input v-model.trim="data.sub_category" :disabled="config[config.type].sub_disabled"
                     style="width:20%"></el-input>
         </el-form-item>
         <el-form-item label="">
-          <el-button type="danger">确定</el-button>
+          <el-button type="danger" :loading="data.button_loading" @click="handlerSubmit">确定</el-button>
         </el-form-item>
       </el-form>
     </el-col>
@@ -44,30 +44,18 @@
 </template>
 
 <script>
-import {reactive} from "vue"
+import {reactive, getCurrentInstance, onBeforeMount} from "vue"
+import {firstCategoryAdd, GetGategory} from "@/api/info.js"
 
 export default {
   setup(props) {
+    const {proxy} = getCurrentInstance()
+
     const data = reactive({
-      tree_data: [
-        {
-          text: "一级 1"
-          ,
-          children: [
-            {
-              text: "二级 1-1",
-              children: [
-                {
-                  text: "三级 1-1-1"
-                }
-              ]
-            }
-          ]
-        }
-      ],
+      tree_data: [],
       defaultProps: {
         children: "children",
-        label: "text",
+        label: "category_name",
       },
       parent_category: "父级分类文本演示",//父级分类名称
       sub_category: "子级分类文本演示",//子级分类名称
@@ -87,15 +75,15 @@ export default {
         parent_disabled: false,//父级分类输入框禁用/启用
         sub_disabled: true,//子级分类输入框禁用/启用
         sub_show: false, //子级分类显示/隐藏
-        clear:['parent_category','sub_category']
+        clear: ["parent_category", "sub_category"]
       },
       child_category_add: {
         title: "添加子级分类",//分类标题
         parent_disabled: true,//父级分类输入框禁用/启用
         sub_disabled: false,//子级分类输入框禁用/启用
         sub_show: true, //子级分类显示/隐藏
-        clear:['sub_category'],
-        create:['parent_category']
+        clear: ["sub_category"],
+        create: ["parent_category"]
       },
       parent_category_edit: {
         title: "编辑父级分类",//分类标题
@@ -123,27 +111,70 @@ export default {
       handlerInputValue()
     }
 
-    const handlerInputValue=()=>{
+    const handlerInputValue = () => {
       //获取还原数据对象
-      const createObject =config[config.type].create;
+      const createObject = config[config.type].create
       //执行还原动作
-      if (createObject && createObject.length>0){
-        createObject.forEach(item=>
-        data[item] ='create11'
+      if (createObject && createObject.length > 0) {
+        createObject.forEach(item =>
+            data[item] = "create11"
         )
       }
 
       //获取删除数据的对象
-        const clearObject =config[config.type].clear
+      const clearObject = config[config.type].clear
       //执行删除动作
-      if(clearObject && clearObject.length>0){
-        clearObject.forEach(item=>{
-          data[item]=''
+      if (clearObject && clearObject.length > 0) {
+        clearObject.forEach(item => {
+          data[item] = ""
         })
       }
     }
 
-    return {data, handlerNodeClick, config, handlerCategory,handlerInputValue}
+
+    const handlerSubmit = () => {
+      if (config.type === "first_category_add") {
+        handlerFirstCategoryAdd()
+      }
+    }
+    //添加父级分类
+    const handlerFirstCategoryAdd = () => {
+      //父级为空的时候，提示阻止
+      if (!data.parent_category) {
+        ElMessage.error("父级分类名称不能为空")
+        return false
+      }
+      //確定按鈕為加載狀態，防止多次點擊
+      data.button_loading = true
+      //执行接口
+      firstCategoryAdd({
+        "categoryName": data.parent_category
+      }).then(response => {
+            data.button_loading = false//删除按钮加载状态
+            response.message = response.message.slice(0, 5)
+            ElMessage.success(response.message)
+            data.parent_category = ""//父级分类删除文本
+          }
+      ).catch(error => {
+            data.button_loading = false
+            console.log(error, "firstCategoryAdd error")
+          }
+      )
+    }
+
+    const handlerGetCategory= ( )=>{
+        GetGategory().then(response=>{
+          data.tree_data= response.data || []
+        }).catch( error=>{
+          console.log(error,'handlerGetCategory is error')
+        })
+    }
+
+    onBeforeMount( ( )=>{
+        handlerGetCategory()
+    })
+
+    return {data, handlerNodeClick, config, handlerCategory, handlerInputValue, handlerSubmit, handlerFirstCategoryAdd}
   }
 }
 </script>

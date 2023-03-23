@@ -30,7 +30,6 @@ const routes = [
         },
         component: () =>
           import("../views/console/Index.vue")
-
       }
     ]
   },
