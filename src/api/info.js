@@ -27,3 +27,12 @@ export function ChildCategoryAdd(data = {}) {
     data
   })
 }
+
+//编辑分类
+export function CategoryEdit(data = {}) {
+  return instance.request({
+    method: "post",
+    url: "/news/editCategory/ ",
+    data
+  })
+}

@@ -11,6 +11,7 @@
           default-expand-all
           :expand-on-click-node="false"
       >
+<!-- eslint-disable-next-line vue/no-unused-vars-->
         <template #default="{node,data}">
           <div class="custom-tree-node">
             <span>{{ node.label }}</span>
@@ -45,24 +46,24 @@
 </template>
 
 <script>
-import {reactive, getCurrentInstance, onBeforeMount,ref} from "vue"
-import {firstCategoryAdd, GeCategory, ChildCategoryAdd} from "@/api/info.js"
+import {reactive, onBeforeMount, ref} from "vue"
+import {firstCategoryAdd, GeCategory, ChildCategoryAdd, CategoryEdit} from "@/api/info.js"
 
 
 export default {
-  setup(props) {
-    const {proxy} = getCurrentInstance()
-    const categoryTree =ref(null)
+  setup() {
+    const categoryTree = ref(null)
     const data = reactive({
       tree_data: [],
       defaultProps: {
         children: "children",
         label: "category_name",
       },
-      sub_category: "子级分类文本演示",//子级分类名称
+      sub_category: "",//子级分类名称
       button_loading: false,//加载确定按钮
       parent_category: "",//父级分类名称
       parent_category_data: null,
+      sub_category_data: null,
     })
 
     const config = reactive({
@@ -93,13 +94,14 @@ export default {
         parent_disabled: false,//父级分类输入框禁用/启用
         sub_disabled: true,//子级分类输入框禁用/启用
         sub_show: false, //子级分类显示/隐藏
+        create: ["parent_category"]
       },
       child_category_edit: {
         title: "编辑子级分类",//分类标题
         parent_disabled: true,//父级分类输入框禁用/启用
         sub_disabled: false,//子级分类输入框禁用/启用
         sub_show: true, //子级分类显示/隐藏
-
+        create: ["parent_category", "sub_category"]
       },
     })
 
@@ -108,9 +110,14 @@ export default {
     }
 
     const handlerCategory = (type, node_data) => {
-      data.parent_category_data = node_data || null
+      if (type === "child_category_edit") {
+        data.parent_category_data = node_data.parent || null
+        data.sub_category_data = node_data || null
+      } else {
+        data.parent_category_data = node_data || null
+      }
+
       config.type = type
-      console.log(node_data)
       //删除还原内容
       handlerInputValue()
     }
@@ -143,7 +150,12 @@ export default {
       if (config.type === "child_category_add") {
         handlerChildCategoryAdd()
       }
-
+      if (config.type === "child_category_edit") {
+        handlerCategoryEdit()
+      }
+      if (config.type === "parent_category_edit") {
+        handlerCategoryEdit()
+      }
     }
     //添加父级分类
     const handlerFirstCategoryAdd = () => {
@@ -163,7 +175,7 @@ export default {
             ElMessage.success(response.message)
             data.parent_category = ""//父级分类删除文本
             //更新树形菜单数据
-            handlerGetCategory();
+            handlerGetCategory()
           }
       ).catch(error => {
             data.button_loading = false
@@ -189,11 +201,11 @@ export default {
         //删除加载状态
         data.button_loading = false
         //成功提示
-        ElMessage.success(response.message.slice(0,5))
+        ElMessage.success(response.message.slice(0, 5))
         //删除子级分类文本
         data.sub_category = ""
         //追加子级数据
-        categoryTree.value.append(response.data,data.parent_category_data)
+        categoryTree.value.append(response.data, data.parent_category_data)
       }).catch(error => {
         data.button_loading = false
         console.log(error, "ChildCategoryAdd error")
@@ -209,11 +221,54 @@ export default {
       })
     }
 
+    //编辑分类
+    const handlerCategoryEdit = () => {
+      //分类为空时候提示
+      if (!data.sub_category || !data.parent_category) {
+        const message = config.type === "parent_category_edit" ? "父级" : "子级"
+        ElMessage.error(`${message}分类不能为空`)
+        return false
+      }
+      //按钮加载状态
+      data.button_loading = true
+      //预先获取存储的节点
+      console.log('data.parent_category_data =>',data.parent_category_data)
+      console.log('data.parent_category_data.data =>',data.parent_category_data.data)
+      const node_parent = data.parent_category_data
+      const node_sub = data.sub_category_data
+      //接口
+      CategoryEdit({
+        categoryName: config.type === "parent_category_edit" ? data.parent_category : data.sub_category,//分类名称参数
+        id: config.type === "parent_category_edit" ? node_parent.data.id : node_sub.data.id //分类id参数
+      }).then(response => {
+        //删除加载状态
+        data.button_loading = false
+        //成功提示
+        ElMessage.success(response.message.slice(0, 5))
+        //同步更新树形菜单节点
+        const node_date = config.type === "parent_category_edit" ? node_parent.data: node_sub.data;
+        node_date.category_name = response.data.category_name;
+      }).catch( error =>{
+        data.button_loading =false
+        console.log('CategoryEdit error',error)
+      })
+
+    }
+
     onBeforeMount(() => {
       handlerGetCategory()
     })
 
-    return {data, handlerNodeClick, config, handlerCategory, handlerInputValue, handlerSubmit, handlerFirstCategoryAdd,categoryTree}
+    return {
+      data,
+      handlerNodeClick,
+      config,
+      handlerCategory,
+      handlerInputValue,
+      handlerSubmit,
+      handlerFirstCategoryAdd,
+      categoryTree
+    }
   }
 }
 </script>
