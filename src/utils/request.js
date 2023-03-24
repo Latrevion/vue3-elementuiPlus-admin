@@ -48,6 +48,8 @@ service.interceptors.response.use(function (response) {
 
   }, function (error) {
     const errorData = JSON.parse(error.request.response)
+  console.log('error.request.response =>',error.request.response)
+  console.log('errorData =>',errorData)
     if (errorData.message) {
       ElMessage({
         message: errorData.message.slice(0,17),

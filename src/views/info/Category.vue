@@ -7,11 +7,10 @@
           ref="categoryTree"
           :data="data.tree_data"
           :props="data.defaultProps"
-          @node-click="handlerNodeClick"
           default-expand-all
           :expand-on-click-node="false"
       >
-<!-- eslint-disable-next-line vue/no-unused-vars-->
+        <!-- eslint-disable-next-line vue/no-unused-vars-->
         <template #default="{node,data}">
           <div class="custom-tree-node">
             <span>{{ node.label }}</span>
@@ -20,7 +19,8 @@
                          @click="handlerCategory('child_category_add',node)">添加子级</el-button>
               <el-button type="success" round size="small" class="button-mini"
                          @click="handlerCategory(node.level===1?'parent_category_edit':'child_category_edit',node)">编辑分类</el-button>
-              <el-button round size="small" class="button-mini">删除分类</el-button>
+              <el-button round size="small" class="button-mini"
+                         @click="handlerCategory('delete_category',node)">删除分类</el-button>
             </span>
           </div>
         </template>
@@ -47,11 +47,11 @@
 
 <script>
 import {reactive, onBeforeMount, ref} from "vue"
-import {firstCategoryAdd, GeCategory, ChildCategoryAdd, CategoryEdit} from "@/api/info.js"
-
+import {firstCategoryAdd, GeCategory, ChildCategoryAdd, CategoryEdit, CategoryDel} from "@/api/info.js"
 
 export default {
   setup() {
+
     const categoryTree = ref(null)
     const data = reactive({
       tree_data: [],
@@ -73,6 +73,7 @@ export default {
         parent_disabled: true,//父级分类输入框禁用/启用
         sub_disabled: true,//子级分类输入框禁用/启用
         sub_show: true, //子级分类显示/隐藏
+        clear: ["parent_category", "sub_category"]
       },
       first_category_add: {
         title: "添加父级分类",//分类标题
@@ -105,9 +106,9 @@ export default {
       },
     })
 
-    const handlerNodeClick = () => {
-      console.log("handlerNodeClick")
-    }
+    // const handlerNodeClick = () => {
+    //   console.log("handlerNodeClick")
+    // }
 
     const handlerCategory = (type, node_data) => {
       if (type === "child_category_edit") {
@@ -117,9 +118,11 @@ export default {
         data.parent_category_data = node_data || null
       }
 
-      config.type = type
+      config.type = type === "delete_category" ? "default" : type
       //删除还原内容
-      handlerInputValue()
+      handlerInputValue();
+      //弹窗二次提示
+      (type === "delete_category") && handlerDeleteConfirm()
     }
 
     const handlerInputValue = () => {
@@ -232,8 +235,8 @@ export default {
       //按钮加载状态
       data.button_loading = true
       //预先获取存储的节点
-      console.log('data.parent_category_data =>',data.parent_category_data)
-      console.log('data.parent_category_data.data =>',data.parent_category_data.data)
+      console.log("data.parent_category_data =>", data.parent_category_data)
+      console.log("data.parent_category_data.data =>", data.parent_category_data.data)
       const node_parent = data.parent_category_data
       const node_sub = data.sub_category_data
       //接口
@@ -246,13 +249,49 @@ export default {
         //成功提示
         ElMessage.success(response.message.slice(0, 5))
         //同步更新树形菜单节点
-        const node_date = config.type === "parent_category_edit" ? node_parent.data: node_sub.data;
-        node_date.category_name = response.data.category_name;
-      }).catch( error =>{
-        data.button_loading =false
-        console.log('CategoryEdit error',error)
+        const node_date = config.type === "parent_category_edit" ? node_parent.data : node_sub.data
+        node_date.category_name = response.data.category_name
+      }).catch(error => {
+        data.button_loading = false
+        console.log("CategoryEdit error", error)
       })
 
+    }
+
+    const handlerDeleteConfirm = () => {
+      ElMessageBox.confirm("确认删除该分类吗？ 删除后无法恢复", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+        showClose: false,//取消右上角关闭图标
+        closeOnClickModal: false,//取消单击遮罩层关闭
+        closeOnPressEscape: false,//取消Esc关闭遮罩层
+        beforeClose: (action, instance, done) => {
+          if (action === "confirm") {
+            instance.confirmButtonLoading = true
+            CategoryDel({
+              categoryId: data.parent_category_data.data.id
+            }).then(response => {
+              //成功提示
+              ElMessage({
+                message: response.message.slice(0,5),
+                type: "success"
+              })
+              instance.confirmButtonLoading = false
+              done()
+              //删除节点
+              console.log('data.parent_category_data',data.parent_category_data)
+              categoryTree.value.remove(data.parent_category_data)
+            }).catch(error => {
+              instance.confirmButtonLoading = false
+              done()
+              console.log(error)
+            })
+          } else {
+            done()
+          }
+        }
+      })
     }
 
     onBeforeMount(() => {
@@ -261,13 +300,14 @@ export default {
 
     return {
       data,
-      handlerNodeClick,
+      // handlerNodeClick,
       config,
       handlerCategory,
       handlerInputValue,
       handlerSubmit,
       handlerFirstCategoryAdd,
-      categoryTree
+      categoryTree,
+      handlerDeleteConfirm
     }
   }
 }

@@ -23,7 +23,7 @@ export function GeCategory(data = {}) {
 export function ChildCategoryAdd(data = {}) {
   return instance.request({
     method: "post",
-    url: "/news/addChildrenCategory/ ",
+    url: "/news/addChildrenCategory/",
     data
   })
 }
@@ -32,7 +32,16 @@ export function ChildCategoryAdd(data = {}) {
 export function CategoryEdit(data = {}) {
   return instance.request({
     method: "post",
-    url: "/news/editCategory/ ",
+    url: "/news/editCategory/",
+    data
+  })
+}
+
+//删除分类
+export function CategoryDel(data = {}) {
+  return instance.request({
+    method: "post",
+    url: "/news/deleteCategory/",
     data
   })
 }
