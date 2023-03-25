@@ -1,15 +1,7 @@
 <template>
   <el-form label-width="150px">
     <el-form-item label="信息类别：">
-      <el-select v-model="data.category">
-        <el-option
-            v-for="item in data.category_opacity"
-            :key="item.value"
-            :value="item.value"
-            :label="item.label"
-        >
-        </el-option>
-      </el-select>
+      <el-cascader v-model="data.category" :options="data.category_options"></el-cascader>
     </el-form-item>
     <el-form-item label="信息标题：">
       <el-input v-model="data.title"></el-input>
@@ -57,18 +49,18 @@ export default {
     })
 
     const editor = ref()
-    let editor_instance=null
-    onMounted( ( )=>{
+    let editor_instance = null
+    onMounted(() => {
       editor_instance = new WangEditor(editor.value)
-      Object.assign(editor_instance.config,{
-        onchange(){
-          console.log('change')
+      Object.assign(editor_instance.config, {
+        onchange() {
+          console.log("change")
         }
       })
       editor_instance.create()
     })
 
-    return {data,editor}
+    return {data, editor}
   }
 }
 </script>
