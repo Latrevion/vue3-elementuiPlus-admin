@@ -47,7 +47,7 @@
 
 <script>
 import {reactive, onBeforeMount, ref} from "vue"
-import {firstCategoryAdd, GeCategory, ChildCategoryAdd, CategoryEdit, CategoryDel} from "@/api/info.js"
+import {firstCategoryAdd, GetCategory, ChildCategoryAdd, CategoryEdit, CategoryDel} from "@/api/info.js"
 
 export default {
   setup() {
@@ -217,7 +217,7 @@ export default {
     }
 
     const handlerGetCategory = () => {
-      GeCategory().then(response => {
+      GetCategory().then(response => {
         data.tree_data = response.data || []
       }).catch(error => {
         console.log(error, "handlerGetCategory is error")
@@ -235,8 +235,8 @@ export default {
       //按钮加载状态
       data.button_loading = true
       //预先获取存储的节点
-      console.log("data.parent_category_data =>", data.parent_category_data)
-      console.log("data.parent_category_data.data =>", data.parent_category_data.data)
+      console.log("date.parent_category_data =>", data.parent_category_data)
+      console.log("date.parent_category_data.date =>", data.parent_category_data.data)
       const node_parent = data.parent_category_data
       const node_sub = data.sub_category_data
       //接口
@@ -280,7 +280,7 @@ export default {
               instance.confirmButtonLoading = false
               done()
               //删除节点
-              console.log('data.parent_category_data',data.parent_category_data)
+              console.log('date.parent_category_data',data.parent_category_data)
               categoryTree.value.remove(data.parent_category_data)
             }).catch(error => {
               instance.confirmButtonLoading = false

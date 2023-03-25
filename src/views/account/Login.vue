@@ -334,7 +334,7 @@ export default {
         data.submit_button_loading = false
       })
 
-      // data.submit_button_loading = true
+      // date.submit_button_loading = true
       // Login(requestData).then(response => {
       //   ElMessage({
       //     message: response.message,
@@ -342,7 +342,7 @@ export default {
       //   })
       //   reset()
       // }).catch(error => {
-      //   data.submit_button_loading = false
+      //   date.submit_button_loading = false
       // })
     }
 

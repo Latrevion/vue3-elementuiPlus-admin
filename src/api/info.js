@@ -11,7 +11,7 @@ export function firstCategoryAdd(data = {}) {
 }
 
 //获取分类
-export function GeCategory(data = {}) {
+export function GetCategory(data = {}) {
   return instance.request({
     method: "post",
     url: "/news/getCategoryAll/",
