@@ -1,7 +1,7 @@
 <template>
   <el-form label-width="150px">
     <el-form-item label="信息类别：">
-      <el-cascader v-model="data.category" :options="data.category_options" :props="data.cascade_props"></el-cascader>
+      <el-cascader v-model="data.category" :options="category_data.category_options" :props="data.cascade_props"></el-cascader>
     </el-form-item>
     <el-form-item label="信息标题：">
       <el-input v-model="data.title"></el-input>
@@ -35,18 +35,22 @@
 import {reactive, ref, onMounted, onBeforeMount} from "vue"
 import WangEditor from "wangeditor"
 import {useStore} from "vuex"
+import {categoryHook} from "@/hook/infoHook.js"
 
 export default {
   setup(props) {
+    //Hook
+    const {infoData:category_data, handlerGetCategory:getList} = categoryHook()
+
     const data = reactive({
       imageUrl: "",
       category: "",
       title: "",
       date: "",
       category_options: [],
-      cascade_props:{
-        label:'category_name',
-        value:'id'
+      cascade_props: {
+        label: "category_name",
+        value: "id"
       }
     })
 
@@ -57,16 +61,10 @@ export default {
     //store
     const store = useStore()
 
-    //获取分类
-    const handlerGetCategory = () => {
-      store.dispatch("info/categoryAction").then(response => {
-        data.category_options = response
-      })
-    }
 
     //挂载之前
     onBeforeMount(() => {
-      handlerGetCategory()
+      getList()
     })
 
     onMounted(() => {
@@ -80,7 +78,7 @@ export default {
     })
 
 
-    return {data, editor}
+    return {data, editor, category_data}
   }
 }
 </script>
