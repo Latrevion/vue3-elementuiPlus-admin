@@ -1,11 +1,11 @@
 <template>
   <el-form label-width="150px">
     <el-form-item label="信息类别：">
-      <el-cascader v-model="data.category" :options="category_data.category_options"
+      <el-cascader v-model="field.category_id" :options="category_data.category_options"
                    :props="data.cascade_props"></el-cascader>
     </el-form-item>
     <el-form-item label="信息标题：">
-      <el-input v-model="data.title"></el-input>
+      <el-input v-model="field.title"></el-input>
     </el-form-item>
     <el-form-item label="略缩图：">
       <el-upload
@@ -17,15 +17,21 @@
           :before-upload="handlerbeforeOnUpload"
           :on-error="handlerOnError"
       >
-        <img v-if="data.image_url" :src="data.image_url" class="avatar">
+        <img v-if="field.image_url" :src="field.image_url" class="avatar">
         <span v-else>+</span>
       </el-upload>
     </el-form-item>
     <el-form-item label="发布日期：">
-      <el-date-picker v-model="data.date" type="datetime" placeholder="选择日期时间"></el-date-picker>
+      <el-date-picker v-model="field.create_date" type="datetime" placeholder="选择日期时间"></el-date-picker>
     </el-form-item>
     <el-form-item label="内容：">
       <div ref="editor"></div>
+    </el-form-item>
+    <el-form-item label="是否发布：">
+      <el-radio-group v-model="field.status">
+        <el-radio label="1">是</el-radio>
+        <el-radio label="0">否</el-radio>
+      </el-radio-group>
     </el-form-item>
     <el-form-item>
       <el-button type="danger">确定
@@ -35,7 +41,7 @@
 </template>
 
 <script>
-import {reactive, ref, onMounted, onBeforeMount} from "vue"
+import {reactive, ref, onMounted, onBeforeMount, toRefs} from "vue"
 import WangEditor from "wangeditor"
 import {useStore} from "vuex"
 import {categoryHook} from "@/hook/infoHook.js"
@@ -47,14 +53,21 @@ export default {
     const {infoData: category_data, handlerGetCategory: getList} = categoryHook()
 
     const data = reactive({
-      image_url: "",
-      category: "",
-      title: "",
-      date: "",
       category_options: [],
       cascade_props: {
         label: "category_name",
         value: "id"
+      }
+    })
+
+    const form_data = reactive({
+      field: {
+        image_url: "",
+        category_id: "",
+        title: "",
+        create_date: "",
+        content: "",
+        status: "0"
       }
     })
 
@@ -82,15 +95,15 @@ export default {
     }
 
     const handlerUpload = (params) => {
-          console.log(params);
-          const file = params.file
+      console.log(params)
+      const file = params.file
       //实例化表单对象
       const form = new FormData()
       //表单添加files字段
-      form.append('files',file)
+      form.append("files", file)
       //上传接口
-      UploadFile(form).then(response=>{
-        data.image_url = response.data.files_path;
+      UploadFile(form).then(response => {
+        data.image_url = response.data.files_path
       })
 
     }
@@ -111,7 +124,7 @@ export default {
     })
 
 
-    return {data, editor, category_data, handlerBeforeOnUpload,handlerUpload}
+    return {data, editor, category_data, handlerBeforeOnUpload, handlerUpload, ...toRefs(form_data)}
   }
 }
 </script>
