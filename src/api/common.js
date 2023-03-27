@@ -17,3 +17,12 @@ export function ErrorHttp(data){
     data
   })
 }
+
+//上传文件
+export function UploadFile(data={}){
+  return instance.request({
+    method:'post',
+    url:'/upload',
+    data
+  })
+}

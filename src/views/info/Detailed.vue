@@ -1,7 +1,8 @@
 <template>
   <el-form label-width="150px">
     <el-form-item label="信息类别：">
-      <el-cascader v-model="data.category" :options="category_data.category_options" :props="data.cascade_props"></el-cascader>
+      <el-cascader v-model="data.category" :options="category_data.category_options"
+                   :props="data.cascade_props"></el-cascader>
     </el-form-item>
     <el-form-item label="信息标题：">
       <el-input v-model="data.title"></el-input>
@@ -9,12 +10,14 @@
     <el-form-item label="略缩图：">
       <el-upload
           class="avatar-uploader"
-          action="https://jsonplaceholder.typicode.com/posts/"
+          action="#"
           :show-file-list="false"
-          :on-success="handlerAvatarSuccess"
-          :before-upload="beforeAvatarUpload"
+          :http-request="handlerUpload"
+          :on-success="handlerOnSuccess"
+          :before-upload="handlerbeforeOnUpload"
+          :on-error="handlerOnError"
       >
-        <img v-if="data.imageUrl" :src="data.imageUrl" class="avatar">
+        <img v-if="data.image_url" :src="data.image_url" class="avatar">
         <span v-else>+</span>
       </el-upload>
     </el-form-item>
@@ -36,14 +39,15 @@ import {reactive, ref, onMounted, onBeforeMount} from "vue"
 import WangEditor from "wangeditor"
 import {useStore} from "vuex"
 import {categoryHook} from "@/hook/infoHook.js"
+import {UploadFile} from "@/api/common.js"
 
 export default {
   setup(props) {
     //Hook
-    const {infoData:category_data, handlerGetCategory:getList} = categoryHook()
+    const {infoData: category_data, handlerGetCategory: getList} = categoryHook()
 
     const data = reactive({
-      imageUrl: "",
+      image_url: "",
       category: "",
       title: "",
       date: "",
@@ -54,6 +58,7 @@ export default {
       }
     })
 
+
     //WangEditor
     const editor = ref()
     let editor_instance = null
@@ -61,6 +66,34 @@ export default {
     //store
     const store = useStore()
 
+    const handlerBeforeOnUpload = (file) => {
+      const isJPG = file.type === "image/jpeg" //限制为jpg格式
+      const isLt2M = file.size / 1024 / 1024 < 2 // 文件大小小于2mb
+      if (!isJPG) {
+        ElMessage.error("上传图片只能是JPG格式")
+        return false
+      }
+
+      if (!isLt2M) {
+        ElMessage.error("上传图片不能超过2mb")
+        return false
+      }
+      return isJPG && isLt2M
+    }
+
+    const handlerUpload = (params) => {
+          console.log(params);
+          const file = params.file
+      //实例化表单对象
+      const form = new FormData()
+      //表单添加files字段
+      form.append('files',file)
+      //上传接口
+      UploadFile(form).then(response=>{
+        data.image_url = response.data.files_path;
+      })
+
+    }
 
     //挂载之前
     onBeforeMount(() => {
@@ -78,7 +111,7 @@ export default {
     })
 
 
-    return {data, editor, category_data}
+    return {data, editor, category_data, handlerBeforeOnUpload,handlerUpload}
   }
 }
 </script>
