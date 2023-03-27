@@ -103,7 +103,7 @@ export default {
       form.append("files", file)
       //上传接口
       UploadFile(form).then(response => {
-        data.image_url = response.data.files_path
+        form_data.field.image_url = response.data.files_path
       })
 
     }
