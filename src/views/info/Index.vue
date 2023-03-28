@@ -41,12 +41,12 @@
     <el-table-column property="address" label="类别" prop="category_name"/>
     <el-table-column property="date" label="日期" prop="createDate" :formatter="formatDate"/>
     <el-table-column label="发布状态" prop="status">
-        <template #default="scope">
-          <el-switch v-model="scope.row.status"></el-switch>
-        </template>
+      <template #default="scope">
+        <el-switch v-model="scope.row.status"></el-switch>
+      </template>
     </el-table-column>
     <el-table-column property="address" label="操作" width="200">
-<!--     eslint-disable-next-line vue/no-unused-vars -->
+      <!--     eslint-disable-next-line vue/no-unused-vars -->
       <template #default="scope">
         <el-button type="danger" size="mini" @click="handlerDetailed">编辑</el-button>
         <el-button size="mini">删除</el-button>
@@ -74,8 +74,8 @@
 </template>
 
 <script>
-import { reactive,onBeforeMount} from "vue"
-import {useRouter} from 'vue-router'
+import {reactive, onBeforeMount} from "vue"
+import {useRouter} from "vue-router"
 import {GetTableList} from "@/api/info.js"
 import {dayjs} from "element-plus"
 
@@ -85,7 +85,7 @@ export default {
     const router = useRouter()
     const data = reactive({
       //页码总数
-      total:0,
+      total: 0,
       category: 0,
       category_options: [
         {label: "人工智能", value: 0},
@@ -102,9 +102,9 @@ export default {
       currentPage: 1
     })
 
-    const request_data= reactive({
-      pageNumber:1,
-      pageSize:10
+    const request_data = reactive({
+      pageNumber: 1,
+      pageSize: 10
     })
 
 
@@ -113,35 +113,42 @@ export default {
       console.log(handlerSelectionChange)
     }
     //分页器的页码方法
-    const handlerSizeChange = (val) => {}
-    const handlerCurrentChange = (val) => {}
-
-    //详情页编辑
-    const handlerDetailed = ( )=>{
-        router.push({
-          path:'/newsDetailed'
-        })
+    const handlerSizeChange = (val) => {
+      request_data.pageSize = val
+      request_data.pageNumber = 1
+      handlerGetList()
+    }
+    const handlerCurrentChange = (val) => {
+      request_data.pageNumber = val
+      handlerGetList()
     }
 
-    const handlerGetList = ( )=>{
-      GetTableList(request_data).then(response =>{
-        const response_data =response.data
+    //详情页编辑
+    const handlerDetailed = () => {
+      router.push({
+        path: "/newsDetailed"
+      })
+    }
+
+    const handlerGetList = () => {
+      GetTableList(request_data).then(response => {
+        const response_data = response.data
         data.tableData = response_data.data
         data.total = response_data.total
       })
     }
     //格式化时间
-    const formatDate= (row )=>{
-        return dayjs(row.createDate *1000).format("YYYY-MM-DD HH:mm:ss")
+    const formatDate = (row) => {
+      return dayjs(row.createDate * 1000).format("YYYY-MM-DD HH:mm:ss")
     }
 
-    onBeforeMount( ( )=>{
+
+    onBeforeMount(() => {
       handlerGetList()
     })
 
 
-
-    return {data, handlerSelectionChange, handlerSizeChange, handlerCurrentChange,handlerDetailed,formatDate}
+    return {data, handlerSelectionChange, handlerSizeChange, handlerCurrentChange, handlerDetailed, formatDate}
   }
 }
 </script>
