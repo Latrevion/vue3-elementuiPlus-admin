@@ -37,10 +37,16 @@
       @selection-change="handleSelectionChange"
   >
     <el-table-column type="selection" width="40"/>
-    <el-table-column property="name" label="标题" width="500"></el-table-column>
-    <el-table-column property="address" label="类别"/>
-    <el-table-column property="date" label="日期"/>
+    <el-table-column property="name" label="标题" width="500" prop="title"></el-table-column>
+    <el-table-column property="address" label="类别" prop="category_name"/>
+    <el-table-column property="date" label="日期" prop="createDate"/>
+    <el-table-column label="发布状态" prop="status">
+        <template #default="scope">
+          <el-switch v-model="scope.row.status"></el-switch>
+        </template>
+    </el-table-column>
     <el-table-column property="address" label="操作" width="200">
+<!--     eslint-disable-next-line vue/no-unused-vars -->
       <template #default="scope">
         <el-button type="danger" size="mini" @click="handlerDetailed">编辑</el-button>
         <el-button size="mini">删除</el-button>
@@ -61,21 +67,24 @@
           :current-page="data.curren_page"
           :page-size="10"
           :page-sizes="[10,20,50,100]"
-          layout="total,sizes,prev, pager, next,jumper" :total="100"
+          layout="total,sizes,prev, pager, next,jumper" :total=data.total
       />
     </el-col>
   </el-row>
 </template>
 
 <script>
-import {getCurrentInstance, reactive} from "vue"
+import { reactive,onBeforeMount} from "vue"
 import {useRouter} from 'vue-router'
+import {GetTableList} from "@/api/info.js"
 
 export default {
   setup(props, context) {
     // const {proxy} =getCurrentInstance()
     const router = useRouter()
     const data = reactive({
+      //页码总数
+      total:0,
       category: 0,
       category_options: [
         {label: "人工智能", value: 0},
@@ -92,6 +101,12 @@ export default {
       currentPage: 1
     })
 
+    const request_data= reactive({
+      pageNumber:1,
+      pageSize:10
+    })
+
+
     //多选事件
     const handlerSelectionChange = () => {
       console.log(handlerSelectionChange)
@@ -106,6 +121,19 @@ export default {
           path:'/newsDetailed'
         })
     }
+
+    const handlerGetList = ( )=>{
+      GetTableList(request_data).then(response =>{
+        const response_data =response.data
+        data.tableData = response_data.data
+        data.total = response_data.total
+      })
+    }
+
+    onBeforeMount( ( )=>{
+      handlerGetList()
+    })
+
 
     return {data, handlerSelectionChange, handlerSizeChange, handlerCurrentChange,handlerDetailed}
   }
