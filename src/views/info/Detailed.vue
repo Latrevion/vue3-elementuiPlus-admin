@@ -47,9 +47,14 @@ import {useStore} from "vuex"
 import {categoryHook} from "@/hook/infoHook.js"
 import {UploadFile} from "@/api/common.js"
 import {dayjs} from "element-plus"
+import {InfoCreate} from "@/api/info.js"
+import {useRouter} from "vue-router"
 
 export default {
   setup(props) {
+    //router
+    const {go} = useRouter()
+
     //Hook
     const {infoData: category_data, handlerGetCategory: getList} = categoryHook()
 
@@ -152,7 +157,12 @@ export default {
           request_data.create_date = dayjs(request_data.create_date).format('YYYY-MM-DD HH:mm:ss')
           //为category_id重新赋值
           request_data.category_id = request_data.category_id[request_data.category_id.length-1]
-          console.log(request_data)
+          // console.log(request_data)
+          InfoCreate(request_data).then(response=>{
+            ElMessage.success(response.message.slice(0,5)) //弹窗提示
+            go(-1) //返回上一页
+          })
+
         } else {
           console.log("error submit")
           return false
