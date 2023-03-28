@@ -39,7 +39,7 @@
     <el-table-column type="selection" width="40"/>
     <el-table-column property="name" label="标题" width="500" prop="title"></el-table-column>
     <el-table-column property="address" label="类别" prop="category_name"/>
-    <el-table-column property="date" label="日期" prop="createDate"/>
+    <el-table-column property="date" label="日期" prop="createDate" :formatter="formatDate"/>
     <el-table-column label="发布状态" prop="status">
         <template #default="scope">
           <el-switch v-model="scope.row.status"></el-switch>
@@ -77,6 +77,7 @@
 import { reactive,onBeforeMount} from "vue"
 import {useRouter} from 'vue-router'
 import {GetTableList} from "@/api/info.js"
+import {dayjs} from "element-plus"
 
 export default {
   setup(props, context) {
@@ -129,13 +130,18 @@ export default {
         data.total = response_data.total
       })
     }
+    //格式化时间
+    const formatDate= (row )=>{
+        return dayjs(row.createDate *1000).format("YYYY-MM-DD HH:mm:ss")
+    }
 
     onBeforeMount( ( )=>{
       handlerGetList()
     })
 
 
-    return {data, handlerSelectionChange, handlerSizeChange, handlerCurrentChange,handlerDetailed}
+
+    return {data, handlerSelectionChange, handlerSizeChange, handlerCurrentChange,handlerDetailed,formatDate}
   }
 }
 </script>
