@@ -42,7 +42,8 @@
     <el-table-column property="date" label="日期" prop="createDate" :formatter="formatDate"/>
     <el-table-column label="发布状态" prop="status">
       <template #default="scope">
-        <el-switch v-model="scope.row.status"></el-switch>
+        <el-switch v-model="scope.row.status" @change="changeStatus($event,scope.row)"
+                   :loading="scope.row.loading"></el-switch>
       </template>
     </el-table-column>
     <el-table-column property="address" label="操作" width="200">
@@ -74,14 +75,15 @@
 </template>
 
 <script>
-import {reactive, onBeforeMount} from "vue"
+import {reactive, onBeforeMount, getCurrentInstance} from "vue"
 import {useRouter} from "vue-router"
-import {GetTableList} from "@/api/info.js"
+import {GetTableList, Status} from "@/api/info.js"
 import {dayjs} from "element-plus"
 
 export default {
   setup(props, context) {
-    // const {proxy} =getCurrentInstance()
+    //获取实例上下文
+    const {proxy} = getCurrentInstance()
     const router = useRouter()
     const data = reactive({
       //页码总数
@@ -143,12 +145,35 @@ export default {
     }
 
 
+    const changeStatus = (value, data) => {
+      console.log(value, "value")
+      console.log(data, "data")
+      data.loading = true
+      data.status = !data.status
+      Status({id: data.id, status: value}).then(response => {
+        ElMessage.success(response.message.slice(0,5))
+        data.loading = false
+        data.status = value
+      }).catch(error => {
+         data.loading = false
+       })
+
+    }
+
     onBeforeMount(() => {
       handlerGetList()
     })
 
 
-    return {data, handlerSelectionChange, handlerSizeChange, handlerCurrentChange, handlerDetailed, formatDate}
+    return {
+      data,
+      handlerSelectionChange,
+      handlerSizeChange,
+      handlerCurrentChange,
+      handlerDetailed,
+      formatDate,
+      changeStatus
+    }
   }
 }
 </script>

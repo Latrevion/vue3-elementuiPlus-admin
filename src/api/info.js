@@ -64,3 +64,12 @@ export function GetTableList(data = {}) {
     data
   })
 }
+
+//发布状态
+export function Status(data = {}) {
+  return instance.request({
+    method: "post",
+    url: "/news/status/",
+    data
+  })
+}
