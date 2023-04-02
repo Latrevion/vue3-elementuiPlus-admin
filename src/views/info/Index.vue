@@ -172,31 +172,51 @@ export default {
     }
 
     const handlerDeleteConfirm = (value) => {
-      ElMessageBox.confirm("确认删除当前数据？删除无法恢复了", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        showClose: false,
-        closeOnClickModal: false,
-        closeOnPressEscape: false,
-        type: "warning",
-        beforeClose: (action, instance, done) => {
-          if (action === "confirm") {
-            instance.confirmButtonLoading = true
-            Delete({id: value}).then(response => {
-              data.row_data_id = ""
-              ElMessage.success(response.message.slice(0, 5))
-              instance.confirmButtonLoading = false
-              done()
-              handlerGetList()
-            }).catch(error => {
-              instance.confirmButtonLoading = false
-              done()
-            })
-          } else {
-            done()
-          }
+      proxy.deleteConfirm({
+        title: "删除",
+        message: "确认删除当前数据吗？",
+        thenFun: () => {
+          return handlerDelete(value)
         }
+      })
+      // ElMessageBox.confirm("确认删除当前数据？删除无法恢复了", "提示", {
+      //   confirmButtonText: "确定",
+      //   cancelButtonText: "取消",
+      //   showClose: false,
+      //   closeOnClickModal: false,
+      //   closeOnPressEscape: false,
+      //   type: "warning",
+      //   beforeClose: (action, instance, done) => {
+      //     if (action === "confirm") {
+      //       instance.confirmButtonLoading = true
+      //       Delete({id: value}).then(response => {
+      //         data.row_data_id = ""
+      //         ElMessage.success(response.message.slice(0, 5))
+      //         instance.confirmButtonLoading = false
+      //         done()
+      //         handlerGetList()
+      //       }).catch(error => {
+      //         instance.confirmButtonLoading = false
+      //         done()
+      //       })
+      //     } else {
+      //       done()
+      //     }
+      //   }
+      //
+      // })
+    }
 
+    const handlerDelete = (value) => {
+      return new Promise((resolve, reject) => {
+        Delete({id: value}).then(response => {
+          ElMessage.success(response.message.slice(0, 5))
+          handlerGetList()
+          data.row_data_id = []
+          resolve()
+        }).catch(error => {
+          reject()
+        })
       })
     }
 
@@ -213,7 +233,8 @@ export default {
       handlerDetailed,
       formatDate,
       changeStatus,
-      handlerDeleteConfirm
+      handlerDeleteConfirm,
+      handlerDelete
     }
   }
 }
