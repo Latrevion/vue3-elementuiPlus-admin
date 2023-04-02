@@ -73,3 +73,12 @@ export function Status(data = {}) {
     data
   })
 }
+
+//删除
+export function Delete(data={}) {
+    return instance.request({
+      method:'post',
+      url:'/news/delete/',
+      data
+    })
+}
