@@ -3,23 +3,20 @@
     <el-col :span="18">
       <el-form :inline="true" label-width="80px">
         <el-form-item label="类别:">
-          <el-select v-model="data.category" placeholder="请选择" class="width-160">
-            <el-option
-              v-for="item in data.category_options"
-              :key="item.value"
-              :value="item.value"
-              :label="item.label"
-            ></el-option>
-          </el-select>
+          <el-cascader v-model="request_data.category_id" :options="category_data.category_options"
+                       :props="data.cascader_props"></el-cascader>
         </el-form-item>
         <el-form-item label="关键字:">
-          <el-select placeholder="请选择" class="width-100"></el-select>
+          <el-select v-model="request_data.key" placeholder="请选择" class="width-100">
+            <el-option v-for="item in data.keyword_options" :key="item.value" :value="item.value"
+                       :label="item.label"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item>
-          <el-input placeholder="请输入关键字" class="width-180"></el-input>
+          <el-input v-model="request_data.keyword" placeholder="请输入关键字" class="width-180"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="danger">搜索</el-button>
+          <el-button type="danger" @click="handlerGetList">搜索</el-button>
         </el-form-item>
       </el-form>
     </el-col>
@@ -79,9 +76,13 @@ import {reactive, onBeforeMount, getCurrentInstance} from "vue"
 import {useRouter} from "vue-router"
 import {GetTableList, Status, Delete} from "@/api/info.js"
 import {dayjs} from "element-plus"
+import {categoryHook} from "@/hook/infoHook.js"
 
 export default {
   setup(props, context) {
+    //hook
+    const {infoData: category_data, handlerGetCategory: getList} = categoryHook()
+
     //获取实例上下文
     const {proxy} = getCurrentInstance()
     const router = useRouter()
@@ -103,12 +104,25 @@ export default {
       ],
       currentPage: 1,
       //id
-      row_data_id: ""
+      row_data_id: "",
+      //配置级联选择器
+      cascader_props: {
+        label: "category_name",
+        value: "id"
+      },
+
+      keyword_options: [
+        {label: "ID", value: "id"},
+        {label: "标题", value: "title"}
+      ]
     })
 
     const request_data = reactive({
       pageNumber: 1,
-      pageSize: 10
+      pageSize: 10,
+      category_id: [],
+      key: "",
+      keyword: ""
     })
 
 
@@ -144,6 +158,7 @@ export default {
     }
 
     const handlerGetList = () => {
+      const request_data = formatParams()
       GetTableList(request_data).then(response => {
         const response_data = response.data
         data.tableData = response_data.data
@@ -179,32 +194,6 @@ export default {
           return handlerDelete(value)
         }
       })
-      // ElMessageBox.confirm("确认删除当前数据？删除无法恢复了", "提示", {
-      //   confirmButtonText: "确定",
-      //   cancelButtonText: "取消",
-      //   showClose: false,
-      //   closeOnClickModal: false,
-      //   closeOnPressEscape: false,
-      //   type: "warning",
-      //   beforeClose: (action, instance, done) => {
-      //     if (action === "confirm") {
-      //       instance.confirmButtonLoading = true
-      //       Delete({id: value}).then(response => {
-      //         data.row_data_id = ""
-      //         ElMessage.success(response.message.slice(0, 5))
-      //         instance.confirmButtonLoading = false
-      //         done()
-      //         handlerGetList()
-      //       }).catch(error => {
-      //         instance.confirmButtonLoading = false
-      //         done()
-      //       })
-      //     } else {
-      //       done()
-      //     }
-      //   }
-      //
-      // })
     }
 
     const handlerDelete = (value) => {
@@ -220,8 +209,31 @@ export default {
       })
     }
 
+    const formatParams = () => {
+      const data = Object.assign({}, request_data)
+      //级联选择器获取最后一项
+      if (data.category_id.length) {
+        data.category_id = data.category_id[data.category_id.length - 1]
+      } else {
+        delete data.category_id
+      }
+      //关键字key
+      if (data.key && data.keyword) {
+        data[data.key] = data.keyword
+      }
+      //删除字段
+      delete data.key
+      delete data.keyword
+      //返回已处理的数据
+      return data
+
+
+    }
+
+
     onBeforeMount(() => {
       handlerGetList()
+      getList()
     })
 
 
@@ -234,7 +246,10 @@ export default {
       formatDate,
       changeStatus,
       handlerDeleteConfirm,
-      handlerDelete
+      handlerDelete,
+      request_data,
+      category_data,
+      handlerGetList
     }
   }
 }
