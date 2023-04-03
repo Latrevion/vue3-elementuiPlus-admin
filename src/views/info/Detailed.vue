@@ -47,7 +47,7 @@ import {useStore} from "vuex"
 import {categoryHook} from "@/hook/infoHook.js"
 import {UploadFile} from "@/api/common.js"
 import {dayjs} from "element-plus"
-import {InfoCreate,GetDetailed} from "@/api/info.js"
+import {InfoCreate, GetDetailed, InfoEdit} from "@/api/info.js"
 import {useRouter, useRoute} from "vue-router"
 
 export default {
@@ -66,7 +66,7 @@ export default {
         label: "category_name",
         value: "id"
       },
-      row_id:query.id
+      row_id: query.id
     })
 
     const form_data = reactive({
@@ -149,23 +149,13 @@ export default {
 
     }
     const formDom = ref()
-    const handlerSubmitForm = () => {
+
+
+    const handlerSubmitForm = (formName) => {
       formDom.value.validate((valid) => {
         //表单通过
         if (valid) {
-          // console.log(form_data.field)
-          //深拷贝
-          const request_data = JSON.parse(JSON.stringify(form_data.field))
-          //日期处理
-          request_data.create_date = dayjs(request_data.create_date).format("YYYY-MM-DD HH:mm:ss")
-          //为category_id重新赋值
-          request_data.category_id = request_data.category_id[request_data.category_id.length - 1]
-          // console.log(request_data)
-          InfoCreate(request_data).then(response => {
-            ElMessage.success(response.message.slice(0, 5)) //弹窗提示
-            go(-1) //返回上一页
-          })
-
+          data.row_id ? handlerEditInfo() : handlerAddInfo()
         } else {
           console.log("error submit")
           return false
@@ -174,14 +164,48 @@ export default {
     }
 
     //获取详情
-    const handlerGetDetailed = ()=>{
-      GetDetailed({id:data.row_id}).then(response=>{
+    const handlerGetDetailed = () => {
+      GetDetailed({id: data.row_id}).then(response => {
         const response_data = response.data
-        form_data.field =response_data
+        form_data.field = response_data
         //调用富文本编辑自身方法还原数据
         editor_instance.txt.html(response_data.content)
       })
     }
+
+    //新增信息
+    const handlerAddInfo = () => {
+      //深拷贝
+      const request_data = JSON.parse(JSON.stringify(form_data.field))
+      //日期处理
+      request_data.create_date = dayjs(request_data.create_date).format("YYYY-MM-DD HH:mm:ss")
+      //重新赋值
+      request_data.category_id = request_data.category_id[request_data.category_id.length - 1]
+      InfoCreate(request_data).then(response => {
+        //弹窗
+        ElMessage.success(response.message.slice(0, 5))
+        //返回上一页
+        go(-1)
+      })
+
+    }
+
+    //编辑信息
+    const handlerEditInfo = () => {
+      //深拷贝
+      const request_data = JSON.parse(JSON.stringify(form_data.field))
+      //重新赋值
+      if (typeof request_data.category_id !== "string") {
+        request_data.category_id = request_data.category_id[request_data.category_id.length - 1]
+      }
+      InfoCreate(request_data).then(response => {
+        //弹窗
+        ElMessage.success(response.message.slice(0, 5))
+        //返回上一页
+        go(-1)
+      })
+    }
+
 
     //挂载之前
     onBeforeMount(() => {

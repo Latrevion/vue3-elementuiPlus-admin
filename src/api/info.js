@@ -91,3 +91,12 @@ export  function GetDetailed(data={}) {
     params:data
   })
 }
+
+//修改信息
+export  function InfoEdit(data={}) {
+    return instance.request({
+      method:'post',
+      url:"/news/editInfo/",
+      data
+    })
+}
