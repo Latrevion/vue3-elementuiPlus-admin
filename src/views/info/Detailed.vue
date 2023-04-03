@@ -9,13 +9,13 @@
     </el-form-item>
     <el-form-item label="略缩图：" prop="image_url">
       <el-upload
-          class="avatar-uploader"
-          action="#"
-          :show-file-list="false"
-          :http-request="handlerUpload"
-          :on-success="handlerOnSuccess"
-          :before-upload="handlerbeforeOnUpload"
-          :on-error="handlerOnError"
+        class="avatar-uploader"
+        action="#"
+        :show-file-list="false"
+        :http-request="handlerUpload"
+        :on-success="handlerOnSuccess"
+        :before-upload="handlerbeforeOnUpload"
+        :on-error="handlerOnError"
       >
         <img v-if="field.image_url" :src="field.image_url" class="avatar">
         <span v-else>+</span>
@@ -47,13 +47,15 @@ import {useStore} from "vuex"
 import {categoryHook} from "@/hook/infoHook.js"
 import {UploadFile} from "@/api/common.js"
 import {dayjs} from "element-plus"
-import {InfoCreate} from "@/api/info.js"
-import {useRouter} from "vue-router"
+import {InfoCreate,GetDetailed} from "@/api/info.js"
+import {useRouter, useRoute} from "vue-router"
 
 export default {
   setup(props) {
     //router
     const {go} = useRouter()
+
+    const {query} = useRoute()
 
     //Hook
     const {infoData: category_data, handlerGetCategory: getList} = categoryHook()
@@ -63,7 +65,8 @@ export default {
       cascade_props: {
         label: "category_name",
         value: "id"
-      }
+      },
+      row_id:query.id
     })
 
     const form_data = reactive({
@@ -154,12 +157,12 @@ export default {
           //深拷贝
           const request_data = JSON.parse(JSON.stringify(form_data.field))
           //日期处理
-          request_data.create_date = dayjs(request_data.create_date).format('YYYY-MM-DD HH:mm:ss')
+          request_data.create_date = dayjs(request_data.create_date).format("YYYY-MM-DD HH:mm:ss")
           //为category_id重新赋值
-          request_data.category_id = request_data.category_id[request_data.category_id.length-1]
+          request_data.category_id = request_data.category_id[request_data.category_id.length - 1]
           // console.log(request_data)
-          InfoCreate(request_data).then(response=>{
-            ElMessage.success(response.message.slice(0,5)) //弹窗提示
+          InfoCreate(request_data).then(response => {
+            ElMessage.success(response.message.slice(0, 5)) //弹窗提示
             go(-1) //返回上一页
           })
 
@@ -170,9 +173,21 @@ export default {
       })
     }
 
+    //获取详情
+    const handlerGetDetailed = ()=>{
+      GetDetailed({id:data.row_id}).then(response=>{
+        const response_data = response.data
+        form_data.field =response_data
+        //调用富文本编辑自身方法还原数据
+        editor_instance.txt.html(response_data.content)
+      })
+    }
+
     //挂载之前
     onBeforeMount(() => {
       getList()
+      //获取详情
+      data.row_id && handlerGetDetailed()
     })
 
     onMounted(() => {

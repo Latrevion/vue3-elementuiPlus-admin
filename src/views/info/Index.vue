@@ -46,7 +46,7 @@
     <el-table-column property="address" label="操作" width="200">
       <!--     eslint-disable-next-line vue/no-unused-vars -->
       <template #default="scope">
-        <el-button type="danger" size="small" @click="handlerDetailed">编辑</el-button>
+        <el-button type="danger" size="small" @click="handlerDetailed(scope.row.id)">编辑</el-button>
         <el-button size="small" @click="handlerDeleteConfirm(scope.row.id)">删除</el-button>
       </template>
     </el-table-column>
@@ -151,9 +151,10 @@ export default {
     }
 
     //详情页编辑
-    const handlerDetailed = () => {
+    const handlerDetailed = (id) => {
       router.push({
-        path: "/newsDetailed"
+        name:"NewsDetailed",
+        query:{id}
       })
     }
 

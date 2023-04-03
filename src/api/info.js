@@ -82,3 +82,12 @@ export function Delete(data={}) {
       data
     })
 }
+
+//获取详情
+export  function GetDetailed(data={}) {
+  return instance.request({
+    method:'get',
+    url:'/news/detailed/',
+    params:data
+  })
+}
