@@ -1,5 +1,5 @@
 <template>
-  <BasisTable :columns="table_config.table_header"></BasisTable>
+  <BasisTable :columns="table_config.table_header" :config="table_config.config"></BasisTable>
 </template>
 
 <script>
@@ -64,7 +64,11 @@ export default {
         {label:"类别",props:'category_name'},
         {label:"日期",props:'create_date'},
         {label:"发布状态",props:'status'}
-      ]
+      ],
+      config:{
+        selection:false,//关闭复选框
+        // batch_delete:false
+      }
     })
 
     //多选事件
