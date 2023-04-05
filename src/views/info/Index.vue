@@ -1,74 +1,5 @@
 <template>
-  <el-row>
-    <el-col :span="18">
-      <el-form :inline="true" label-width="80px">
-        <el-form-item label="类别:">
-          <el-cascader v-model="request_data.category_id" :options="category_data.category_options"
-                       :props="data.cascader_props"></el-cascader>
-        </el-form-item>
-        <el-form-item label="关键字:">
-          <el-select v-model="request_data.key" placeholder="请选择" class="width-100">
-            <el-option v-for="item in data.keyword_options" :key="item.value" :value="item.value"
-                       :label="item.label"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-input v-model="request_data.keyword" placeholder="请输入关键字" class="width-180"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="danger" @click="handlerGetList">搜索</el-button>
-        </el-form-item>
-      </el-form>
-    </el-col>
-    <el-col :span="6">
-      <router-link to="/newsDetailed" class="pull-right">
-        <el-button type="danger">新增</el-button>
-      </router-link>
-    </el-col>
-  </el-row>
-  <el-table
-    ref="ElTable"
-    :data="data.tableData"
-    style="width: 100%"
-    border
-    @selection-change="handlerSelectionChange"
-  >
-    <el-table-column type="selection" width="40"/>
-    <el-table-column property="name" label="标题" width="500" prop="title"></el-table-column>
-    <el-table-column property="address" label="类别" prop="category_name"/>
-    <el-table-column property="date" label="日期" prop="createDate" :formatter="formatDate"/>
-    <el-table-column label="发布状态" prop="status">
-      <template #default="scope">
-        <el-switch v-model="scope.row.status" @change="changeStatus($event,scope.row)"
-                   :loading="scope.row.loading"></el-switch>
-      </template>
-    </el-table-column>
-    <el-table-column property="address" label="操作" width="200">
-      <!--     eslint-disable-next-line vue/no-unused-vars -->
-      <template #default="scope">
-        <el-button type="danger" size="small" @click="handlerDetailed(scope.row.id)">编辑</el-button>
-        <el-button size="small" @click="handlerDeleteConfirm(scope.row.id)">删除</el-button>
-      </template>
-    </el-table-column>
-  </el-table>
-  <el-row class="margin-top-30">
-    <el-col :span="6">
-      <el-button :disabled="!data.row_data_id" @click="handlerDeleteConfirm(data.row_data_id)">批量删除</el-button>
-    </el-col>
-    <el-col :span="18">
-      <el-pagination
-        class="pull-right"
-        small
-        background
-        @size-change="handlerSizeChange"
-        @current-change="handlerCurrentChange"
-        :current-page="data.curren_page"
-        :page-size="10"
-        :page-sizes="[10,20,50,100]"
-        layout="total,sizes,prev, pager, next,jumper" :total=data.total
-      />
-    </el-col>
-  </el-row>
+  <BasisTable :columns="table_config.table_header"></BasisTable>
 </template>
 
 <script>
@@ -77,8 +8,10 @@ import {useRouter} from "vue-router"
 import {GetTableList, Status, Delete} from "@/api/info.js"
 import {dayjs} from "element-plus"
 import {categoryHook} from "@/hook/infoHook.js"
+import BasisTable from "@c/table"
 
 export default {
+  components: {BasisTable},
   setup(props, context) {
     //hook
     const {infoData: category_data, handlerGetCategory: getList} = categoryHook()
@@ -125,6 +58,14 @@ export default {
       keyword: ""
     })
 
+    const table_config= reactive({
+      table_header:[
+        {label:"标题",props:'title'},
+        {label:"类别",props:'category_name'},
+        {label:"日期",props:'create_date'},
+        {label:"发布状态",props:'status'}
+      ]
+    })
 
     //多选事件
     const handlerSelectionChange = (val) => {
@@ -153,8 +94,8 @@ export default {
     //详情页编辑
     const handlerDetailed = (id) => {
       router.push({
-        name:"NewsDetailed",
-        query:{id}
+        name: "NewsDetailed",
+        query: {id}
       })
     }
 
@@ -250,7 +191,8 @@ export default {
       handlerDelete,
       request_data,
       category_data,
-      handlerGetList
+      handlerGetList,
+      table_config
     }
   }
 }
