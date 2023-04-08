@@ -27,19 +27,20 @@ export function requestHook() {
       return false
     }
 
-    //参数
-    // const request_data = {
-    //   url: request_config.url,
-    //   method: request_config.method,
-    //   data: request_config.data
-    // }
+
     const url = apiUrl[request_config.url]?.list?.url
     const method = apiUrl[request_config.url]?.list?.method || "post"
     const data = request_config.data
 
     if (!url) {
-      console.log("请求地址不村子啊")
+      console.log("请求地址不存在啊")
       return false
+    }
+
+    const request_data = {
+      url,
+      method,
+      data
     }
 
     //调用接口
@@ -53,14 +54,24 @@ export function requestHook() {
 
   }
 
-  const requestData = (data = {}) => {
-    request_config = {
-      ...request_config,
-      ...data
+  const requestData = (data = {}, type = "init") => {
+    if (type === "init") {
+      request_config = {
+        ...request_config,
+        ...data
+      }
     }
+
+    if (type ==='page'){
+      request_config.data = {
+        ...request_config.data,
+        ...data
+      }
+    }
+
     console.log(request_config)
     //请求数据
-     return loadData()
+    return loadData()
   }
   return {
     table_data,

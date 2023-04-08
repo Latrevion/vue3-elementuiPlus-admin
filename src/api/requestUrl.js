@@ -3,7 +3,7 @@ const apiUrl = {
   info: {
     list: {
       url: "/news/getList/",
-      method: post
+      method: 'post'
     },
   }
 }
