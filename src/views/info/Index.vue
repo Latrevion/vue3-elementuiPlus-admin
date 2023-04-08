@@ -1,5 +1,67 @@
 <template>
-  <BasisTable :columns="table_config.table_header" :config="table_config.config"></BasisTable>
+<!--  <BasisTable :columns="table_config.table_header" :config="table_config.config" :request="table_config.request"></BasisTable>-->
+  <el-row>
+    <el-col :span="18">
+      <el-form :inline="true">
+        <el-form-item label="类别">
+          <el-cascader v-model="request_data.category_id" :options="category_data.category_options" :props="data.cascader_props"></el-cascader>
+        </el-form-item>
+        <el-form-item label="关键字">
+          <el-select v-model="request_data.key" placeholder="请选择" class="width-100">
+            <el-option v-for="item in data.keyword_options" :key="item.value" :value="item.value" :label="item.label"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-input v-model="request_data.keyword" placeholder="请输入关键字" class="width-180"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="danger" @click="handlerGetList">搜索</el-button>
+        </el-form-item>
+      </el-form>
+    </el-col>
+    <el-col :span="6">
+      <router-link to="/newsDetailed" class="pull-right">
+        <el-button type="danger">新增</el-button>
+      </router-link>
+    </el-col>
+  </el-row>
+  <BasisTable :columns="table_config.table_header" :config="table_config.config" :request="table_config.request"  @onload="handlerOnload"/>
+  <el-table ref="table" border :data="data.tableData" style="width: 100%" @selection-change="handleSelectionChange">
+    <el-table-column type="selection" width="40"></el-table-column>
+    <el-table-column prop="title" label="标题" width="500"></el-table-column>
+    <el-table-column prop="category_name" label="类别"></el-table-column>
+    <el-table-column prop="createDate" label="日期" :formatter="formatDate"></el-table-column>
+    <el-table-column label="发布状态">
+      <template #default="scope">
+        <el-switch v-model="scope.row.status" :loading="scope.row.loading" @change="changeStatus($event, scope.row)"></el-switch>
+      </template>
+    </el-table-column>
+    <el-table-column label="操作" width="200">
+      <template #default="scope">
+        <el-button type="danger" @click="handlerDetailed(scope.row.id)">编辑</el-button>
+        <el-button @click="handlerDeleteComfirm(scope.row.id)">删除</el-button>
+      </template>
+    </el-table-column>
+  </el-table>
+  <el-row class="margin-top-20">
+    <el-col :span="6">
+      <el-button :disabled="data.row_data_id.length === 0" @click="handlerDeleteComfirm(data.row_data_id)">批量删除</el-button>
+    </el-col>
+    <el-col :span="18">
+      <el-pagination
+        class="pull-right"
+        sizs="small"
+        background
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        v-model:current-page="data.currentPage"
+        :page-size="10"
+        :page-sizes="[10, 20, 50, 100]"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="data.total">
+      </el-pagination>
+    </el-col>
+  </el-row>
 </template>
 
 <script>
@@ -60,14 +122,21 @@ export default {
 
     const table_config= reactive({
       table_header:[
-        {label:"标题",props:'title'},
-        {label:"类别",props:'category_name'},
-        {label:"日期",props:'create_date'},
-        {label:"发布状态",props:'status'}
+        {label:"标题",prop:"title"},
+        {label:"类别",prop:"category_name"},
+        {label:"日期",prop:"createDate"},
+        {label:"发布状态",prop:"status"}
       ],
       config:{
-        selection:false,//关闭复选框
+        // selection:false,//关闭复选框
         // batch_delete:false
+      },
+      request:{
+        url:'info',
+        data:{
+          pageNumber:1,
+          pageSize:10
+        }
       }
     })
 
@@ -172,8 +241,10 @@ export default {
       delete data.keyword
       //返回已处理的数据
       return data
+    }
 
-
+    const handlerOnload = (data)=>{
+      console.log(data)
     }
 
 
@@ -196,7 +267,8 @@ export default {
       request_data,
       category_data,
       handlerGetList,
-      table_config
+      table_config,
+      handlerOnload
     }
   }
 }
