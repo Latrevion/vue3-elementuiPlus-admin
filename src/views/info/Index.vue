@@ -125,7 +125,7 @@ export default {
         {label:"标题",prop:"title"},
         {label:"类别",prop:"category_name"},
         {label:"日期",prop:"createDate"},
-        {label:"发布状态",prop:"status"}
+        {key_id:'id',type:"switch",label:"发布状态",prop:"status",api_module:'info',api_key:'info_status',api_url:'/news/status/'}
       ],
       config:{
         // selection:false,//关闭复选框

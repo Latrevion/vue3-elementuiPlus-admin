@@ -1,11 +1,15 @@
 <template>
   <el-table :data="table_data.data" border style="width:100%">
     <el-table-column v-if="config.selection" type="selection" width="40"></el-table-column>
-    <el-table-column v-for="header in data.render_header"
-                     :key="header.prop"
-                     :prop="header.prop"
-                     :label="header.label">
-    </el-table-column>
+    <template v-for="header in data.render_header" :key="header.prop">
+<!--      switch-->
+      <el-table-column v-if="header.type==='switch'" :label=header.label>
+          <template #default="scope">
+             <Switch :data="scope.row" :config="header"></Switch>
+          </template>
+      </el-table-column>
+      <el-table-column v-else :prop="header.prop" :label="header.label"></el-table-column>
+    </template>
   </el-table>
   <el-row class="margin-top-30">
     <el-col :span="6">
@@ -23,10 +27,12 @@ import {onBeforeMount, reactive} from "vue"
 import {configHook} from "./configHook.js"
 import {requestHook} from "./requestHook.js"
 import Pagination from "@/components/pagination/index.vue"
+import Switch from '@/components/switch/index.vue'
+
 export default {
   emits:['onload'],
   name: "TableComponents",
-  components: {Pagination},
+  components: {Switch, Pagination},
   props: {
     columns: {
       type: Array,

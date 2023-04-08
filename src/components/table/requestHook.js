@@ -51,7 +51,6 @@ export function requestHook() {
         resolve(table_data.data)
       })
     })
-
   }
 
   const requestData = (data = {}, type = "init") => {
